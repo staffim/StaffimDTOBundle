@@ -1,0 +1,101 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="staffim_dto.dto.factory.class">Staffim\DTOBundle\DTO\Factory</parameter>
+        <parameter key="staffim_dto.dto.property_accessor.class">Staffim\DTOBundle\DTO\PropertyAccessor</parameter>
+        <parameter key="staffim_dto.relation_manager.class">Staffim\DTOBundle\Request\RelationManager</parameter>
+        <parameter key="staffim_dto.dto.mapper.class">Staffim\DTOBundle\DTO\Mapper</parameter>
+        <parameter key="staffim_dto.serializer.model_handler.class">Staffim\DTOBundle\Serializer\ModelHandler</parameter>
+        <parameter key="staffim_dto.hateoas.dto_relation_provider.class">Staffim\DTOBundle\Hateoas\DTORelationProvider</parameter>
+        <parameter key="staffim_dto.hateoas.relation_provider.class">Staffim\DTOBundle\Hateoas\RelationProvider</parameter>
+
+        <parameter key="staffim_dto.param_converter.dto.class">Staffim\DTOBundle\Request\ParamConverter\DTOParamConverter</parameter>
+        <parameter key="staffim_dto.param_converter.pagination.class">Staffim\DTOBundle\Request\ParamConverter\PaginationParamConverter</parameter>
+        <parameter key="staffim_dto.param_converter.sorting.class">Staffim\DTOBundle\Request\ParamConverter\SortingParamConverter</parameter>
+        <parameter key="staffim_dto.render.listener.class">Staffim\DTOBundle\EventListener\RenderListener</parameter>
+
+        <parameter key="staffim_dto.dto.factory.namespace"/>
+        <parameter key="staffim_dto.dto.factory.postfix"/>
+    </parameters>
+
+    <services>
+        <!-- Mapper stuff -->
+        <service id="staffim_dto.dto.factory" class="%staffim_dto.dto.factory.class%">
+            <argument>%staffim_dto.dto.factory.namespace%</argument>
+            <argument>%staffim_dto.dto.factory.postfix%</argument>
+        </service>
+        <service id="staffim_dto.dto.property_accessor" class="%staffim_dto.dto.property_accessor.class%">
+        </service>
+        <service id="staffim_dto.relation_manager" class="%staffim_dto.relation_manager.class%">
+            <argument type="service" id="request_stack"/>
+        </service>
+        <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">
+            <argument type="service" id="staffim_dto.dto.property_accessor"/>
+            <argument type="service" id="staffim_dto.relation_manager"/>
+            <argument type="service" id="staffim_dto.dto.factory"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <!-- Serializer stuff -->
+        <service id="staffim_dto.serializer.model_handler" class="%staffim_dto.serializer.model_handler.class%">
+            <call method="setDocumentManager">
+                <argument type="service" id="doctrine.odm.mongodb.document_manager" on-invalid="ignore"/>
+            </call>
+            <tag name="jms_serializer.subscribing_handler"/>
+        </service>
+
+        <!-- Relation providers -->
+        <service id="staffim_dto.hateoas.dto_relation_provider" class="%staffim_dto.hateoas.dto_relation_provider.class%">
+            <argument type="service" id="jms_serializer.metadata_factory"/>
+        </service>
+        <service id="staffim_dto.hateoas.relation_provider" class="%staffim_dto.hateoas.relation_provider.class%">
+            <argument type="service" id="staffim_dto.hateoas.dto_relation_provider"/>
+        </service>
+
+        <!-- Param converters -->
+        <service id="staffim_dto.param_converter.dto" class="%staffim_dto.param_converter.dto.class%">
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="validator"/>
+            <call method="setMapper">
+                <argument type="service" id="staffim_dto.dto.mapper" />
+            </call>
+            <call method="setFilterer">
+                <argument type="service" id="filterer" />
+            </call>
+            <tag name="request.param_converter" priority="200"/>
+        </service>
+        <service id="staffim_dto.param_converter.pagination" class="%staffim_dto.param_converter.pagination.class%">
+            <tag name="request.param_converter"/>
+        </service>
+        <service id="staffim_dto.param_converter.sorting" class="%staffim_dto.param_converter.sorting.class%">
+            <tag name="request.param_converter"/>
+        </service>
+        <service id="staffim_dto.render.listener" class="%staffim_dto.render.listener.class%">
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="staffim_dto.dto.mapper"/>
+            <tag name="kernel.event_listener" event="kernel.view" method="onKernelView"/>
+        </service>
+
+        <!-- Filterer -->
+        <service id="filterer.metadata.metadata_driver" class="Staffim\DTOBundle\Filterer\Metadata\AnnotationDriver">
+            <argument type="service" id="annotation_reader"/>
+        </service>
+        <service id="filterer.metadata.metadata_factory" class="Metadata\MetadataFactory">
+            <argument type="service" id="filterer.metadata.metadata_driver"/>
+            <argument>Metadata\ClassHierarchyMetadata</argument>
+            <argument>%kernel.debug%</argument>
+        </service>
+        <service id="filterer.annotation_filter_factory" class="Staffim\DTOBundle\Filterer\AnnotationFilterFactory">
+        </service>
+        <service id="filterer" class="Staffim\DTOBundle\Filterer\Filterer">
+            <argument type="service" id="filterer.metadata.metadata_factory"/>
+            <argument type="service" id="filterer.annotation_filter_factory"/>
+        </service>
+        <service id="filterer.html_purifier" class="Staffim\DTOBundle\Filterer\Filters\HTMLPurifier">
+            <tag name="filterer.filter" alias="html_purifier"/>
+        </service>
+    </services>
+</container>
