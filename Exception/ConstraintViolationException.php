@@ -44,7 +44,11 @@ class ConstraintViolationException extends Exception
             if (!isset($errors[$key])) {
                 $errors[$key] = [];
             }
-            $errors[$key][] = $violation->getMessage();
+            $errors[$key][] = [
+                'message' => $violation->getMessage(),
+                'message_template' => $violation->getMessageTemplate(),
+                'attributes' => $violation->getParameters(),
+            ];
         }
 
         return $errors;
