@@ -15,6 +15,8 @@ class Render extends ConfigurationAnnotation
 
     protected $code = 200;
 
+    protected $groups = [];
+
     public function getFormat()
     {
         return $this->format;
@@ -33,6 +35,16 @@ class Render extends ConfigurationAnnotation
     public function setCode($code)
     {
         $this->code = $code;
+    }
+
+    function getGroups()
+    {
+        return $this->groups;
+    }
+
+    function setGroups(array $groups = [])
+    {
+        $this->groups = $groups;
     }
 
     /**
