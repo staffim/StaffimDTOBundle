@@ -68,12 +68,14 @@ class ModelHandler implements SubscribingHandlerInterface
             if (!$this->documentManager) {
                 throw new \Staffim\DTOBundle\Exception\Exception('You should set document manager for using document auto-fetching.');
             }
-            $model = $this->documentManager->getRepository($type['params'][0]['name'])->find($model);
-            if (!$model) {
-                throw new \Staffim\DTOBundle\Exception\ObjectNotFoundException();
+            $className = $type['params'][0]['name'];
+            $object = $this->documentManager->getRepository($className)->find($model);
+            if (!$object) {
+                            var_dump($className, $model);die();
+                throw new \Staffim\DTOBundle\Exception\ObjectNotFoundException($className, $model);
             }
         }
 
-        return $model;
+        return $object;
     }
 }

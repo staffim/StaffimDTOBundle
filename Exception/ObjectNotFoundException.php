@@ -9,7 +9,7 @@ class ObjectNotFoundException extends Exception
 
     public function __construct($class, $id)
     {
-        parent::__construct('Object of type "' . $class . '" with id "' . $id . '" found.');
+        parent::__construct('Object of type "' . $class . '" with id "' . $id . '" not found.');
         $this->class = $class;
         $this->id = $id;
     }
