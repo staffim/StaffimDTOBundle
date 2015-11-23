@@ -9,17 +9,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInte
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Rs\Json\Patch;
-use Rs\Json\Patch\InvalidJsonException;
-use Rs\Json\Patch\InvalidOperationException;
 
 use Staffim\DTOBundle\Serializer\SerializationContext;
 use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Exception\ConstraintViolationException;
+use Staffim\DTOBundle\Exception\Exception;
 use Staffim\DTOBundle\Filterer\Filterer;
 
 class DTOParamConverter implements ParamConverterInterface
@@ -56,7 +52,7 @@ class DTOParamConverter implements ParamConverterInterface
      */
     public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, Filterer $filterer = null)
     {
-        $this->validator  = $validator;
+        $this->validator = $validator;
         $this->serializer = $serializer;
         $this->filterer = $filterer;
         $this->serializationContext = new SerializationContext;
@@ -172,18 +168,18 @@ class DTOParamConverter implements ParamConverterInterface
      * @param array $options
      * @return string
      * @throws Patch\FailedTestException
-     * @throws \Exception
+     * @throws \Staffim\DTOBundle\Exception\Exception
      */
     protected function buildModelFromPatchRequest(Request $request, ParamConverter $configuration, array $options)
     {
         $model = $this->getModelFromRequest($request, $options);
         if (!$model) {
-            throw new \Exception('No model in request.');
+            throw new Exception('No model in request.');
         }
 
         $operations = json_decode($request->getContent(), true);
         if (!$operations) {
-            throw new BadRequestHttpException('Patch operations is missing');
+            throw new Exception('Patch operations is missing');
         }
 
         return $this->applyPatch($model, $request->getContent());
@@ -241,7 +237,7 @@ class DTOParamConverter implements ParamConverterInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @param array $options
      * @return null|\Staffim\DTOBundle\Model\ModelInterface
-     * @throws \Exception
+     * @throws \Staffim\DTOBundle\Exception\Exception
      */
     protected function getModelFromRequest(Request $request, array $options)
     {
@@ -254,7 +250,7 @@ class DTOParamConverter implements ParamConverterInterface
                     if (!$model) {
                         $model = $attribute;
                     } else {
-                        throw new \Exception('Multiple models in request.');
+                        throw new Exception('Multiple models in request.');
                     }
                 }
             }
