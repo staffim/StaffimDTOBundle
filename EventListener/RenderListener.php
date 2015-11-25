@@ -80,9 +80,7 @@ class RenderListener
             }
             $context = new SerializationContext;
             $context->setSerializeNull(true);
-            if ($render->getGroups()) {
-                $context->setGroups($render->getGroups());
-            }
+            $context->setGroups($render->getGroups() ?: ['Default']);
             $content = $this->serializer->serialize($presentationData, $render->getFormat(), $context);
 
             $response->headers->set('Content-Type', 'application/json; charset=UTF-8');
