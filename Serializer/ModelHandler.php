@@ -71,7 +71,6 @@ class ModelHandler implements SubscribingHandlerInterface
             $className = $type['params'][0]['name'];
             $object = $this->documentManager->getRepository($className)->find($model);
             if (!$object) {
-                            var_dump($className, $model);die();
                 throw new \Staffim\DTOBundle\Exception\ObjectNotFoundException($className, $model);
             }
         }
