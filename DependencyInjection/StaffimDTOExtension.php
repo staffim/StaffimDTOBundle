@@ -27,5 +27,6 @@ class StaffimDTOExtension extends Extension
             $container->setParameter('staffim_dto.dto.factory.namespace', $config['dto_namespace']);
         }
         $container->setParameter('staffim_dto.dto.factory.postfix', $config['dto_postfix']);
+        $container->setParameter('staffim_dto.trigger_events', $config['trigger_events']);
     }
 }
