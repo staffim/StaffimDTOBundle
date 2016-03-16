@@ -3,11 +3,12 @@
 namespace Staffim\DTOBundle\DTO;
 
 use Staffim\DTOBundle\Collection\EmbeddedModelCollection;
+use Staffim\DTOBundle\Exception\MappingException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 
-use Staffim\DTOBundle\Request\RelationManager;
+use Staffim\DTOBundle\Request\RequestMappingConfigurator;
 use Staffim\DTOBundle\Collection\ModelIteratorInterface;
 use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Model\EmbeddedModelInterface;
@@ -21,9 +22,9 @@ class Mapper
     private $propertyAccessor;
 
     /**
-     * @var \Staffim\DTOBundle\Request\RelationManager
+     * @var \Staffim\DTOBundle\Request\RequestMappingConfigurator
      */
-    private $relationManager;
+    private $mappingConfigurator;
 
     /**
      * @var \Staffim\DTOBundle\DTO\Factory
@@ -35,44 +36,26 @@ class Mapper
      */
     private $eventDispatcher;
 
-    private $usedRelations = [];
+    private $fieldsToShow = [];
+
+    private $fieldsToHide = [];
 
     /**
      * @param \Symfony\Component\PropertyAccess\PropertyAccessorInterface $propertyAccessor
-     * @param \Staffim\DTOBundle\Request\RelationManager $relationManager
+     * @param \Staffim\DTOBundle\Request\RequestMappingConfigurator $mappingConfigurator
      * @param \Staffim\DTOBundle\DTO\Factory $factory
      * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         PropertyAccessorInterface $propertyAccessor,
-        RelationManager $relationManager,
+        RequestMappingConfigurator $mappingConfigurator,
         Factory $factory,
         EventDispatcherInterface $eventDispatcher = null
     ) {
         $this->propertyAccessor = $propertyAccessor;
-        $this->relationManager = $relationManager;
+        $this->mappingConfigurator = $mappingConfigurator;
         $this->factory = $factory;
         $this->eventDispatcher = $eventDispatcher;
-    }
-
-    private function resetRelations()
-    {
-        $this->usedRelations = [];
-    }
-
-    private function pushRelation($relation)
-    {
-        array_push($this->usedRelations, $relation);
-    }
-
-    private function popRelation($relation)
-    {
-        array_pop($this->usedRelations);
-    }
-
-    private function hasRelation($relation)
-    {
-        return $this->relationManager->hasRelation(implode('.', array_merge($this->usedRelations, [$relation])));
     }
 
     /**
@@ -83,12 +66,24 @@ class Mapper
      */
     public function map(ModelInterface $model)
     {
-        $this->resetRelations();
+        $this->resetFieldsMap();
 
         return $this->doMap($model);
     }
 
-    private function doMap(ModelInterface $model)
+    /**
+     * Map iterator of models to array with DTO.
+     *
+     * @param \Staffim\DTOBundle\Collection\ModelIteratorInterface $collection
+     * @param string $parentPropertyName
+     * @return array
+     */
+    public function mapCollection(ModelIteratorInterface $collection, $parentPropertyName = null)
+    {
+        return $this->doMapCollection($collection, $parentPropertyName);
+    }
+
+    private function doMap(ModelInterface $model, $parentPropertyName = null)
     {
         $dto = $this->factory->create($model);
         $properties = get_object_vars($dto);
@@ -96,7 +91,7 @@ class Mapper
         // @todo trigger pre event
 
         foreach ($properties as $propertyName => $property) {
-            $this->updateProperty($model, $dto, $propertyName);
+            $this->updateProperty($model, $dto, $propertyName, $parentPropertyName);
         }
 
         if ($this->eventDispatcher) {
@@ -109,12 +104,18 @@ class Mapper
         return $dto;
     }
 
-    private function updateProperty($model, $dto, $propertyName)
+    private function updateProperty($model, $dto, $propertyName, $parentPropertyName = null)
     {
-        try {
-            $modelValue = $this->propertyAccessor->getValue($model, $propertyName);
-        } catch (NoSuchPropertyException $e) {
+        $fullPropertyName = $parentPropertyName ? $parentPropertyName . '.' . $propertyName : $propertyName;
+
+        if (!$this->isPropertyAllowed($fullPropertyName)) {
             $modelValue = null;
+        } else {
+            try {
+                $modelValue = $this->propertyAccessor->getValue($model, $propertyName);
+            } catch (NoSuchPropertyException $e) {
+                $modelValue = null;
+            }
         }
 
         $this->propertyAccessor->setValue(
@@ -124,46 +125,51 @@ class Mapper
         );
     }
 
-    /**
-     * Map iterator of models to array with DTO.
-     *
-     * @param \Staffim\DTOBundle\Collection\ModelIteratorInterface $collection
-     * @return array
-     */
-    public function mapCollection(ModelIteratorInterface $collection)
+    private function isPropertyAllowed($propertyName)
     {
-        $this->resetRelations();
+        if (count($this->fieldsToShow) === 0 && count($this->fieldsToHide) === 0) {
+            return true;
+        }
 
-        return $this->doMapCollection($collection);
+        if ($propertyName === 'id' || strpos($propertyName, '.id') === strlen($propertyName) - 3) {
+            return true;
+        }
+
+        if (count($this->fieldsToShow) > 0) {
+            foreach ($this->fieldsToShow as $fieldToShow) {
+                if ($propertyName === $fieldToShow) {
+                    return true;
+                }
+
+                if (strpos($fieldToShow, $propertyName . '.') === 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return !in_array($propertyName, $this->fieldsToHide);
     }
 
-    private function doMapCollection(\Iterator $iterator)
+    private function doMapCollection(\Iterator $iterator, $parentPropertyName = null)
     {
         $a = [];
-        foreach ($iterator as $i) {
-            if (!($i instanceof ModelInterface)) {
-                var_dump(get_class($model));die();
-            }
-
-            $a[] = $this->doMap($i);
-        }
-        return $a;
-
-        return array_map(function ($model) {
+        foreach ($iterator as $model) {
             if (!($model instanceof ModelInterface)) {
-                var_dump(get_class($model));die();
+                throw new MappingException('Class \''. get_class($model) .'\' should implement \\Staffim\\DTOBundle\\Model\\ModelInterface');
             }
 
-            return $this->doMap($model);
-        }, array_values(iterator_to_array($iterator)));
+            $a[] = $this->doMap($model, $parentPropertyName);
+        }
+
+        return $a;
     }
 
     private function convertValue($modelValue, $propertyName)
     {
         if ($modelValue instanceof EmbeddedModelCollection) {
-            $this->pushRelation($propertyName);
-            $value = $this->doMapCollection($modelValue);
-            $this->popRelation($propertyName);
+            $value = $this->doMapCollection($modelValue, $propertyName);
         } elseif (is_array($modelValue) || (is_object($modelValue) && ($modelValue instanceof \Traversable))) {
             $value = [];
             foreach ($modelValue as $key => $modelValueItem) {
@@ -171,9 +177,7 @@ class Mapper
             }
         } elseif ($modelValue instanceof ModelInterface) {
             if ($this->hasRelation($propertyName) || $modelValue instanceof EmbeddedModelInterface) {
-                $this->pushRelation($propertyName);
-                $value = $this->doMap($modelValue);
-                $this->popRelation($propertyName);
+                $value = $this->doMap($modelValue, $propertyName);
             } else {
                 $value = $modelValue->getId();
             }
@@ -182,5 +186,16 @@ class Mapper
         }
 
         return $value;
+    }
+
+    private function resetFieldsMap()
+    {
+        $this->fieldsToHide = $this->mappingConfigurator->getFieldsToHide();
+        $this->fieldsToShow = $this->mappingConfigurator->getFieldsToShow();
+    }
+
+    private function hasRelation($propertyName)
+    {
+        return $this->mappingConfigurator->hasRelation($propertyName);
     }
 }
