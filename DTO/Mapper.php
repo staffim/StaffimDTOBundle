@@ -47,7 +47,7 @@ class Mapper
         PropertyAccessorInterface $propertyAccessor,
         RelationManager $relationManager,
         Factory $factory,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher = null
     ) {
         $this->propertyAccessor = $propertyAccessor;
         $this->relationManager = $relationManager;
@@ -99,10 +99,12 @@ class Mapper
             $this->updateProperty($model, $dto, $propertyName);
         }
 
-        $event = new PostMapEvent($model, $dto);
-        $modelClassParts = explode('\\', get_class($model));
-        $modelName = \Doctrine\Common\Util\Inflector::tableize(end($modelClassParts));
-        $this->eventDispatcher->dispatch('dto.' . $modelName . '.post_map', $event);
+        if ($this->eventDispatcher) {
+            $event = new PostMapEvent($model, $dto);
+            $modelClassParts = explode('\\', get_class($model));
+            $modelName = \Doctrine\Common\Util\Inflector::tableize(end($modelClassParts));
+            $this->eventDispatcher->dispatch('dto.' . $modelName . '.post_map', $event);
+        }
 
         return $dto;
     }

@@ -19,6 +19,7 @@
 
         <parameter key="staffim_dto.dto.factory.namespace"/>
         <parameter key="staffim_dto.dto.factory.postfix"/>
+        <parameter key="staffim_dto.trigger_events"/>
     </parameters>
 
     <services>
@@ -36,7 +37,6 @@
             <argument type="service" id="staffim_dto.dto.property_accessor"/>
             <argument type="service" id="staffim_dto.relation_manager"/>
             <argument type="service" id="staffim_dto.dto.factory"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <!-- Serializer stuff -->

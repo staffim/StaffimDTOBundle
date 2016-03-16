@@ -24,6 +24,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('dto_postfix')
                     ->defaultValue('DTO')
                 ->end()
+                ->scalarNode('trigger_events')
+                    ->defaultValue(true)
+                ->end()
             ->end()
         ;
 
