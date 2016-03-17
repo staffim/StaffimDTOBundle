@@ -26,7 +26,7 @@ class PropertyAccessor implements PropertyAccessorInterface
     public function setValue(&$objectOrArray, $propertyPath, $value)
     {
         $camelize = lcfirst($propertyPath);
-        $setter = 'get' . $camelize;
+        $setter = 'set' . $camelize;
         if (property_exists($objectOrArray, $propertyPath)) {
             $objectOrArray->$propertyPath = $value;
         } elseif (method_exists($objectOrArray, $setter)) {
