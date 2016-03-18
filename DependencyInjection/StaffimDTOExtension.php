@@ -19,14 +19,19 @@ class StaffimDTOExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $xmlLoader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $xmlLoader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $xmlLoader->load('services.xml');
 
         if (isset($config['dto_namespace'])) {
             $container->setParameter('staffim_dto.dto.factory.namespace', $config['dto_namespace']);
         }
+
         $container->setParameter('staffim_dto.dto.factory.postfix', $config['dto_postfix']);
         $container->setParameter('staffim_dto.trigger_events', $config['trigger_events']);
+
+        $configuratorName = $config['cache'] ? 'cached_request_mapping_configurator' : 'request_mapping_configurator';
+
+        $container->setAlias('staffim_dto.mapping_configurator', 'staffim_dto.' . $configuratorName);
     }
 }

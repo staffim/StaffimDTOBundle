@@ -20,9 +20,14 @@ class MapperSpec extends ObjectBehavior
         RequestMappingConfigurator $mappingConfigurator,
         Factory $factory,
         EventDispatcherInterface $eventDispatcher
-    ) {
+    )
+    {
         $mappingConfigurator->getFieldsToHide()->willReturn([]);
         $mappingConfigurator->getFieldsToShow()->willReturn([]);
+
+        $mappingConfigurator->isPropertyVisible('id')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
+        $mappingConfigurator->hasRelation('a')->willReturn(false);
 
         $this->beConstructedWith($propertyAccessor, $mappingConfigurator, $factory, $eventDispatcher);
     }
@@ -65,8 +70,12 @@ class MapperSpec extends ObjectBehavior
     function it_should_convert_relation_like_object($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2)
     {
         $mappingConfigurator->hasRelation('a')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
+
         $propertyAccessor->getValue($model1, 'a')->willReturn($model2);
         $propertyAccessor->getValue($model2, 'a')->willReturn('value');
         $propertyAccessor->setValue($dto1, 'a', $dto2)->shouldBeCalled();
@@ -77,7 +86,9 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_relation_like_id($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2)
     {
+        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
         $mappingConfigurator->hasRelation('a')->willReturn(false);
+
         $factory->create($model1)->willReturn($dto1);
         $model2->getId()->willReturn('id');
         $propertyAccessor->getValue($model1, 'a')->willReturn($model2);
@@ -88,7 +99,7 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_collection_relation_like_ids($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
+        $mappingConfigurator->getRelations()->willReturn([]);
         $factory->create($model1)->willReturn($dto1);
         $model2->getId()->willReturn('id');
         $this->stubIterator($collection, new \ArrayIterator([$model2->getWrappedObject()]));
@@ -101,12 +112,18 @@ class MapperSpec extends ObjectBehavior
     function it_should_convert_collection_relation_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2, ModelCollection $collection)
     {
         $mappingConfigurator->hasRelation('a')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
+
         $model2->getId()->willReturn('id');
+
         $this->stubIterator($collection, new \ArrayIterator([$model2->getWrappedObject()]));
+
         $propertyAccessor->getValue($model1, 'a')->willReturn($collection);
         $propertyAccessor->getValue($model2, 'a')->willReturn('value');
+
         $propertyAccessor->setValue($dto1, 'a', [$dto2])->shouldBeCalled();
         $propertyAccessor->setValue($dto2, 'a', 'value')->shouldBeCalled();
 
@@ -115,10 +132,11 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_collection_embedded_relation_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, EmbeddedModelInterface $model2, ModelDTO $dto2, ModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
-        $model2->getId()->willReturn('id');
+
         $this->stubIterator($collection, new \ArrayIterator([$model2->getWrappedObject()]));
         $propertyAccessor->getValue($model1, 'a')->willReturn($collection);
         $propertyAccessor->getValue($model2, 'a')->willReturn('value');
@@ -130,10 +148,11 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_embedded_collection_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2, EmbeddedModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
-        $model2->getId()->willReturn('id');
+
         $this->stubIterator($collection, new \ArrayIterator([$model2->getWrappedObject()]));
         $propertyAccessor->getValue($model1, 'a')->willReturn($collection);
         $propertyAccessor->getValue($model2, 'a')->willReturn('value');
@@ -152,7 +171,9 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_hide_specified_fields($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model, UserDTO $userDTO)
     {
-        $mappingConfigurator->getFieldsToHide()->willReturn(['name']);
+        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('parent')->willReturn(true);
+
         $factory->create($model)->willReturn($userDTO);
 
         $propertyAccessor->getValue($model, 'id')->willReturn('Some user id');
@@ -164,35 +185,21 @@ class MapperSpec extends ObjectBehavior
         $propertyAccessor->setValue($userDTO, 'parent', 'John')->shouldBeCalled();
 
         $this->map($model)->shouldReturn($userDTO);
-
-        $mappingConfigurator->getFieldsToHide()->shouldBeCalled();
-    }
-
-    function it_should_show_model_id_even_if_all_fields_hidden($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model, UserDTO $userDTO)
-    {
-        $mappingConfigurator->getRelations()->willReturn(['']);
-        $mappingConfigurator->getFieldsToShow()->willReturn(['someNonexistentField']);
-        $factory->create($model)->willReturn($userDTO);
-
-        $propertyAccessor->getValue($model, 'id')->willReturn('Some user id');
-        $propertyAccessor->getValue($model, 'name')->willReturn('Some name');
-        $propertyAccessor->getValue($model, 'parent')->willReturn('John');
-
-        $propertyAccessor->setValue($userDTO, 'id', 'Some user id')->shouldBeCalled();
-        $propertyAccessor->setValue($userDTO, 'name', null)->shouldBeCalled();
-        $propertyAccessor->setValue($userDTO, 'parent', null)->shouldBeCalled();
-
-        $this->map($model)->shouldReturn($userDTO);
     }
 
     function it_should_hide_fields_in_embedded_documents($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $user, UserDTO $userDTO, ModelInterface $parent, ParentDTO $parentDTO)
     {
-        $mappingConfigurator->getFieldsToShow()->willReturn(['parent.name']);
+        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('parent')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('parent.name')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('parent.id')->willReturn(true);
+
         $mappingConfigurator->hasRelation('parent')->willReturn(true);
 
         $factory->create($user)->willReturn($userDTO);
         $factory->create($parent)->willReturn($parentDTO);
 
+        $user->getId()->willReturn('some_id');
         $propertyAccessor->getValue($user, 'id')->willReturn('Some user id');
         $propertyAccessor->getValue($user, 'name')->willReturn('Some name');
         $propertyAccessor->getValue($user, 'parent')->willReturn($parent);
@@ -208,6 +215,58 @@ class MapperSpec extends ObjectBehavior
         $propertyAccessor->setValue($parentDTO, 'name', 'Adam')->shouldBeCalled();
 
         $this->map($user)->shouldReturn($userDTO);
+    }
+
+    function it_should_hide_fields_in_embedded_collections(
+        $propertyAccessor,
+        $mappingConfigurator,
+        $factory,
+        ModelInterface $model,
+        ModelDTO $modelDto,
+        ModelInterface $user,
+        UserDTO $userDTO,
+        ModelInterface $parent,
+        ParentDTO $parentDTO,
+        ModelCollection $collection
+    ) {
+        $mappingConfigurator->hasRelation('a')->willReturn(true);
+        $mappingConfigurator->hasRelation('a.parent')->willReturn(true);
+
+        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('a.id')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a.name')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible('a.parent')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a.parent.id')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible('a.parent.name')->willReturn(true);
+
+        $factory->create($model)->willReturn($modelDto);
+        $factory->create($user)->willReturn($userDTO);
+        $factory->create($parent)->willReturn($parentDTO);
+
+        //get
+        $propertyAccessor->getValue($model, 'a')->willReturn($collection);
+        $this->stubIterator($collection, new \ArrayIterator([$user->getWrappedObject()]));
+
+        $propertyAccessor->getValue($user, 'id')->willReturn('abel_id');
+        $propertyAccessor->getValue($user, 'name')->willReturn('Abel');
+        $propertyAccessor->getValue($user, 'parent')->willReturn($parent);
+
+        $propertyAccessor->getValue($parent, 'id')->willReturn('adam_id');
+        $propertyAccessor->getValue($parent, 'name')->willReturn('Adam');
+        //set
+        $propertyAccessor->setValue($modelDto, 'a', [$userDTO])->shouldBeCalled();
+
+        $propertyAccessor->setValue($userDTO, 'id', 'abel_id')->shouldBeCalled();
+        $propertyAccessor->setValue($userDTO, 'name', null)->shouldBeCalled();
+        $propertyAccessor->setValue($userDTO, 'parent', $parentDTO)->shouldBeCalled();
+
+        $propertyAccessor->setValue($parentDTO, 'id', 'adam_id')->shouldBeCalled();
+        $propertyAccessor->setValue($parentDTO, 'name', 'Adam')->shouldBeCalled();
+
+        //configurator calls
+        $mappingConfigurator->isPropertyVisible('a')->shouldBeCalled();
+
+        $this->map($model)->shouldReturn($modelDto);
     }
 
     private function stubIterator($modelCollection, $iterator)

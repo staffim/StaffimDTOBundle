@@ -1,12 +1,13 @@
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="staffim_dto.dto.factory.class">Staffim\DTOBundle\DTO\Factory</parameter>
         <parameter key="staffim_dto.dto.property_accessor.class">Staffim\DTOBundle\DTO\PropertyAccessor</parameter>
-        <parameter key="staffim_dto.mapping_configurator.class">Staffim\DTOBundle\Request\RequestMappingConfigurator</parameter>
+        <parameter key="staffim_dto.request_mapping_configurator.class">Staffim\DTOBundle\Request\RequestMappingConfigurator</parameter>
+        <parameter key="staffim_dto.cached_request_mapping_configurator.class">Staffim\DTOBundle\Request\CachedRequestMappingConfigurator</parameter>
         <parameter key="staffim_dto.dto.mapper.class">Staffim\DTOBundle\DTO\Mapper</parameter>
         <parameter key="staffim_dto.serializer.model_handler.class">Staffim\DTOBundle\Serializer\ModelHandler</parameter>
         <parameter key="staffim_dto.hateoas.dto_relation_provider.class">Staffim\DTOBundle\Hateoas\DTORelationProvider</parameter>
@@ -30,9 +31,22 @@
         </service>
         <service id="staffim_dto.dto.property_accessor" class="%staffim_dto.dto.property_accessor.class%">
         </service>
-        <service id="staffim_dto.mapping_configurator" class="%staffim_dto.mapping_configurator.class%">
+
+        <service
+            id="staffim_dto.request_mapping_configurator"
+            class="%staffim_dto.request_mapping_configurator.class%"
+            public="false"
+        >
             <argument type="service" id="request_stack"/>
         </service>
+
+        <service
+            id="staffim_dto.cached_request_mapping_configurator"
+            class="%staffim_dto.cached_request_mapping_configurator.class%"
+            public="false"
+        >
+        </service>
+
         <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">
             <argument type="service" id="staffim_dto.dto.property_accessor"/>
             <argument type="service" id="staffim_dto.mapping_configurator"/>
@@ -60,10 +74,10 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="validator"/>
             <call method="setMapper">
-                <argument type="service" id="staffim_dto.dto.mapper" />
+                <argument type="service" id="staffim_dto.dto.mapper"/>
             </call>
             <call method="setFilterer">
-                <argument type="service" id="filterer" />
+                <argument type="service" id="filterer"/>
             </call>
             <tag name="request.param_converter" priority="200"/>
         </service>

@@ -4,7 +4,7 @@ namespace Staffim\DTOBundle\Request;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class RequestMappingConfigurator
+class RequestMappingConfigurator implements MappingConfiguratorInterface
 {
     /**
      * @var \Symfony\Component\HttpFoundation\RequestStack
@@ -12,10 +12,6 @@ class RequestMappingConfigurator
     private $requestStack;
 
     /**
-     * @DI\InjectParams({
-     *   "requestStack": @DI\Inject
-     * })
-     *
      * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
      */
     public function __construct(RequestStack $requestStack)
@@ -28,33 +24,83 @@ class RequestMappingConfigurator
      */
     public function getRelations()
     {
-        return $this->requestStack->getCurrentRequest()->get('relations', []);
+        return $this->getFields('relations');
     }
 
     /**
-     * @param string $relation
-     * @return bool
+     * @return array
      */
-    public function hasRelation($relation)
-    {
-        return in_array($relation, $this->getRelations());
-    }
-
     public function getFieldsToShow()
     {
         return $this->getFields('fields');
     }
 
+    /**
+     * @return array
+     */
     public function getFieldsToHide()
     {
         return $this->getFields('hideFields');
     }
 
     /**
+     * @param string $propertyName
+     * @return bool
+     */
+    public function isPropertyVisible($propertyName)
+    {
+        $fieldsToShow = $this->getFieldsToShow();
+        $fieldsToHide = $this->getFieldsToHide();
+
+        if (count($fieldsToShow) === 0 && count($fieldsToHide) === 0) {
+            return true;
+        }
+
+        if ($propertyName === 'id' || strpos($propertyName, '.id') === strlen($propertyName) - 3) {
+            return true;
+        }
+
+        if (count($fieldsToShow) > 0) {
+            foreach ($fieldsToShow as $fieldToShow) {
+                if ($propertyName === $fieldToShow) {
+                    return true;
+                }
+
+                if (strpos($fieldToShow, $propertyName . '.') === 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return !in_array($propertyName, $fieldsToHide);
+    }
+
+    /**
+     * @param string $propertyName
+     * @return bool
+     */
+    public function hasRelation($propertyName)
+    {
+        foreach ($this->getRelations() as $relation) {
+            if ($propertyName === $relation) {
+                return true;
+            }
+
+            if (strpos($relation, $propertyName . '.') === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $type
      * @return array
      */
-    private function getFields($type)
+    protected function getFields($type)
     {
         $value = $this->requestStack->getCurrentRequest()->get($type, []);
 
@@ -71,7 +117,7 @@ class RequestMappingConfigurator
         if (is_array($value)) {
             $result = $value;
         } elseif (is_string($value)) {
-            $result = explode(',', $value);
+            $result = array_map('trim', explode(',', $value));
         }
 
         return $result;
