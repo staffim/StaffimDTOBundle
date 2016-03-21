@@ -45,6 +45,7 @@
             class="%staffim_dto.cached_request_mapping_configurator.class%"
             public="false"
         >
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">
