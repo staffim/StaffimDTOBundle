@@ -27,6 +27,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('trigger_events')
                     ->defaultValue(true)
                 ->end()
+                ->scalarNode('cache')
+                    ->defaultValue(true)
+                ->end()
             ->end()
         ;
 

@@ -3,11 +3,12 @@
 namespace Staffim\DTOBundle\DTO;
 
 use Staffim\DTOBundle\Collection\EmbeddedModelCollection;
+use Staffim\DTOBundle\Exception\MappingException;
+use Staffim\DTOBundle\Request\MappingConfiguratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
 
-use Staffim\DTOBundle\Request\RelationManager;
 use Staffim\DTOBundle\Collection\ModelIteratorInterface;
 use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Model\EmbeddedModelInterface;
@@ -21,9 +22,9 @@ class Mapper
     private $propertyAccessor;
 
     /**
-     * @var \Staffim\DTOBundle\Request\RelationManager
+     * @var \Staffim\DTOBundle\Request\MappingConfiguratorInterface
      */
-    private $relationManager;
+    private $mappingConfigurator;
 
     /**
      * @var \Staffim\DTOBundle\DTO\Factory
@@ -35,44 +36,22 @@ class Mapper
      */
     private $eventDispatcher;
 
-    private $usedRelations = [];
-
     /**
      * @param \Symfony\Component\PropertyAccess\PropertyAccessorInterface $propertyAccessor
-     * @param \Staffim\DTOBundle\Request\RelationManager $relationManager
+     * @param \Staffim\DTOBundle\Request\MappingConfiguratorInterface $mappingConfigurator
      * @param \Staffim\DTOBundle\DTO\Factory $factory
      * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
      */
     public function __construct(
         PropertyAccessorInterface $propertyAccessor,
-        RelationManager $relationManager,
+        MappingConfiguratorInterface $mappingConfigurator,
         Factory $factory,
         EventDispatcherInterface $eventDispatcher = null
     ) {
         $this->propertyAccessor = $propertyAccessor;
-        $this->relationManager = $relationManager;
+        $this->mappingConfigurator = $mappingConfigurator;
         $this->factory = $factory;
         $this->eventDispatcher = $eventDispatcher;
-    }
-
-    private function resetRelations()
-    {
-        $this->usedRelations = [];
-    }
-
-    private function pushRelation($relation)
-    {
-        array_push($this->usedRelations, $relation);
-    }
-
-    private function popRelation($relation)
-    {
-        array_pop($this->usedRelations);
-    }
-
-    private function hasRelation($relation)
-    {
-        return $this->relationManager->hasRelation(implode('.', array_merge($this->usedRelations, [$relation])));
     }
 
     /**
@@ -81,14 +60,7 @@ class Mapper
      * @param \Staffim\DTOBundle\Model\ModelInterface $model
      * @return object $dto
      */
-    public function map(ModelInterface $model)
-    {
-        $this->resetRelations();
-
-        return $this->doMap($model);
-    }
-
-    private function doMap(ModelInterface $model)
+    public function map(ModelInterface $model, $parentPropertyName = null)
     {
         $dto = $this->factory->create($model);
         $properties = get_object_vars($dto);
@@ -96,7 +68,7 @@ class Mapper
         // @todo trigger pre event
 
         foreach ($properties as $propertyName => $property) {
-            $this->updateProperty($model, $dto, $propertyName);
+            $this->updateProperty($model, $dto, $propertyName, $parentPropertyName);
         }
 
         if ($this->eventDispatcher) {
@@ -109,71 +81,60 @@ class Mapper
         return $dto;
     }
 
-    private function updateProperty($model, $dto, $propertyName)
+    /**
+     * Map iterator of models to array with DTO.
+     *
+     * @param \Staffim\DTOBundle\Collection\ModelIteratorInterface $collection
+     * @param string $parentPropertyName
+     * @return array
+     */
+    public function mapCollection(ModelIteratorInterface $collection, $parentPropertyName = null)
     {
-        try {
-            $modelValue = $this->propertyAccessor->getValue($model, $propertyName);
-        } catch (NoSuchPropertyException $e) {
+        $a = [];
+        foreach ($collection as $model) {
+            if (!($model instanceof ModelInterface)) {
+                throw new MappingException('Class \''. get_class($model) .'\' should implement \\Staffim\\DTOBundle\\Model\\ModelInterface');
+            }
+
+            $a[] = $this->map($model, $parentPropertyName);
+        }
+
+        return $a;
+    }
+
+    private function updateProperty($model, $dto, $propertyName, $parentPropertyName = null)
+    {
+        $fullPropertyName = $parentPropertyName ? $parentPropertyName . '.' . $propertyName : $propertyName;
+
+        if (!$this->mappingConfigurator->isPropertyVisible($fullPropertyName)) {
             $modelValue = null;
+        } else {
+            try {
+                $modelValue = $this->propertyAccessor->getValue($model, $propertyName);
+            } catch (NoSuchPropertyException $e) {
+                $modelValue = null;
+            }
         }
 
         $this->propertyAccessor->setValue(
             $dto,
             $propertyName,
-            $this->convertValue($modelValue, $propertyName)
+            $this->convertValue($modelValue, $fullPropertyName)
         );
-    }
-
-    /**
-     * Map iterator of models to array with DTO.
-     *
-     * @param \Staffim\DTOBundle\Collection\ModelIteratorInterface $collection
-     * @return array
-     */
-    public function mapCollection(ModelIteratorInterface $collection)
-    {
-        $this->resetRelations();
-
-        return $this->doMapCollection($collection);
-    }
-
-    private function doMapCollection(\Iterator $iterator)
-    {
-        $a = [];
-        foreach ($iterator as $i) {
-            if (!($i instanceof ModelInterface)) {
-                var_dump(get_class($model));die();
-            }
-
-            $a[] = $this->doMap($i);
-        }
-        return $a;
-
-        return array_map(function ($model) {
-            if (!($model instanceof ModelInterface)) {
-                var_dump(get_class($model));die();
-            }
-
-            return $this->doMap($model);
-        }, array_values(iterator_to_array($iterator)));
     }
 
     private function convertValue($modelValue, $propertyName)
     {
         if ($modelValue instanceof EmbeddedModelCollection) {
-            $this->pushRelation($propertyName);
-            $value = $this->doMapCollection($modelValue);
-            $this->popRelation($propertyName);
+            $value = $this->mapCollection($modelValue, $propertyName);
         } elseif (is_array($modelValue) || (is_object($modelValue) && ($modelValue instanceof \Traversable))) {
             $value = [];
             foreach ($modelValue as $key => $modelValueItem) {
                 $value[$key] = $this->convertValue($modelValueItem, $propertyName);
             }
         } elseif ($modelValue instanceof ModelInterface) {
-            if ($this->hasRelation($propertyName) || $modelValue instanceof EmbeddedModelInterface) {
-                $this->pushRelation($propertyName);
-                $value = $this->doMap($modelValue);
-                $this->popRelation($propertyName);
+            if ($this->mappingConfigurator->hasRelation($propertyName) || $modelValue instanceof EmbeddedModelInterface) {
+                $value = $this->map($modelValue, $propertyName);
             } else {
                 $value = $modelValue->getId();
             }
