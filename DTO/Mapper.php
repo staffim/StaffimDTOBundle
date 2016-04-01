@@ -112,7 +112,7 @@ class Mapper
             try {
                 $modelValue = $this->propertyAccessor->getValue($model, $propertyName);
             } catch (NoSuchPropertyException $e) {
-                $modelValue = null;
+                return;
             }
         }
 
