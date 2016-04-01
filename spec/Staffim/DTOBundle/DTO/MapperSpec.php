@@ -269,6 +269,21 @@ class MapperSpec extends ObjectBehavior
         $this->map($model)->shouldReturn($modelDto);
     }
 
+    function it_should_return_default_value_when_exception_was_thrown($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $user, GroupDTO $groupDTO)
+    {
+        $mappingConfigurator->isPropertyVisible('access')->willReturn(true);
+
+        $factory->create($user)->willReturn($groupDTO);
+
+        $propertyAccessor->getValue($user, 'access')
+            ->shouldBeCalled()
+            ->willThrow(new \Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException());
+
+        $propertyAccessor->setValue($groupDTO, 'access', null)->shouldNotBeCalled();
+
+        $this->map($user)->shouldReturn($groupDTO);
+    }
+
     private function stubIterator($modelCollection, $iterator)
     {
         $modelCollection->rewind()->will(function () use ($iterator) {
@@ -308,4 +323,9 @@ class ParentDTO implements \Staffim\DTOBundle\DTO\Model\DTOInterface
     public $id;
 
     public $name;
+}
+
+class GroupDTO implements \Staffim\DTOBundle\DTO\Model\DTOInterface
+{
+    public $access = 'default';
 }
