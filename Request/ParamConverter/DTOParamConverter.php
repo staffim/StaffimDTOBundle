@@ -167,7 +167,7 @@ class DTOParamConverter implements ParamConverterInterface
      * @param \Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter $configuration
      * @param array $options
      * @return string
-     * @throws Patch\FailedTestException
+     * @throws \Patch\FailedTestException
      * @throws \Staffim\DTOBundle\Exception\Exception
      */
     protected function buildModelFromPatchRequest(Request $request, ParamConverter $configuration, array $options)

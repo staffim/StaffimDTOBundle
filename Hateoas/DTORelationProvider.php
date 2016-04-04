@@ -5,6 +5,7 @@ namespace Staffim\DTOBundle\Hateoas;
 use Hateoas\Configuration as Hateoas;
 use Hateoas\Configuration\Metadata\ClassMetadataInterface;
 use Metadata\MetadataFactoryInterface;
+use Staffim\DTOBundle\DTO\UnknownValue;
 
 class DTORelationProvider
 {
@@ -43,6 +44,10 @@ class DTORelationProvider
 
     private function isPropertyDTO($type, $value)
     {
+        if ($value === UnknownValue::create()) {
+            return false;
+        }
+
         if ($type['name'] == 'DTO') {
             return is_object($value);
         } elseif ($type['name'] == 'array' && $type['params'] && $type['params'][0]['name'] == 'DTO') {

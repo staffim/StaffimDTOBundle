@@ -30,8 +30,10 @@ class StaffimDTOExtension extends Extension
         $container->setParameter('staffim_dto.dto.factory.postfix', $config['dto_postfix']);
         $container->setParameter('staffim_dto.trigger_events', $config['trigger_events']);
 
-        $configuratorName = $config['cache'] ? 'cached_request_mapping_configurator' : 'request_mapping_configurator';
+        $container->setParameter('staffim_dto.default_mapping', $config['default_mapping']);
 
-        $container->setAlias('staffim_dto.mapping_configurator', 'staffim_dto.' . $configuratorName);
+        $configuratorName = $config['cache'] ? 'cache' : 'request';
+
+        $container->setAlias('staffim_dto.mapping_storage', 'staffim_dto.mapping_storage.' . $configuratorName);
     }
 }
