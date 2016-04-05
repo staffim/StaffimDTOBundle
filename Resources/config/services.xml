@@ -43,14 +43,9 @@
         </service>
         <service id="staffim_dto.mapping_storage.request" class="%staffim_dto.mapping_storage.request.class%" public="false">
             <argument type="service" id="request_stack"/>
-            <call method="setInnerStorage">
-                <argument type="service" id="staffim_dto.mapping_storage.static"/>
-            </call>
         </service>
         <service id="staffim_dto.mapping_storage.cache" class="%staffim_dto.mapping_storage.cache.class%" public="false">
-            <call method="setInnerStorage">
-                <argument type="service" id="staffim_dto.mapping_storage.request"/>
-            </call>
+            <argument type="service" id="staffim_dto.mapping_storage.request"/>
         </service>
 
         <service id="staffim_dto.mapping_configurator" class="%staffim_dto.mapping_configurator.class%">

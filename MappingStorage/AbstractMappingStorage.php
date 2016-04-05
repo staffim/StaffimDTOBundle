@@ -5,39 +5,11 @@ namespace Staffim\DTOBundle\MappingStorage;
 abstract class AbstractMappingStorage implements MappingStorageInterface
 {
     /**
-     * @var \Staffim\DTOBundle\MappingStorage\AbstractMappingStorage
-     */
-    protected $innerStorage;
-
-    /**
      * @param mixed $model
      * @param string $key
-     * @return bool
+     * @return array
      */
-    abstract protected function isValuePresent($model, $key);
-
-    /**
-     * @param mixed $model
-     * @param string $key
-     * @return bool
-     */
-    abstract protected function getValue($model, $key);
-
-    /**
-     * @return \Staffim\DTOBundle\MappingStorage\AbstractMappingStorage
-     */
-    public function getInnerStorage()
-    {
-        return $this->innerStorage;
-    }
-
-    /**
-     * @param \Staffim\DTOBundle\MappingStorage\AbstractMappingStorage $innerStorage
-     */
-    public function setInnerStorage(AbstractMappingStorage $innerStorage)
-    {
-        $this->innerStorage = $innerStorage;
-    }
+    abstract protected function getRawFields($model, $key);
 
     /**
      * @param mixed $model
@@ -63,22 +35,44 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
      */
     public function getFieldsToHide($model)
     {
-        return $this->getFields($model, 'hideFields');
+        return $this->getFields($model, 'hideFields', false);
     }
 
     /**
      * @param mixed $model
      * @param string $key
-     * @return mixed
+     * @return array
      */
-    public function getFields($model, $key)
+    private function getFields($model, $key, $expandPath = true)
     {
-        $result = null;
+        return $this->compileFields($model, $key, $expandPath);
+    }
 
-        if ($this->isValuePresent($model, $key)) {
-            $result = $this->getValue($model, $key);
-        } elseif ($this->innerStorage) {
-            $result = $this->innerStorage->getFields($model, $key);
+    /**
+     * @param mixed $model
+     * @param string $key
+     * @param bool $expandPath
+     * @return array
+     */
+    private function compileFields($model, $key, $expandPath = true)
+    {
+        $rawValues = $this->getRawFields($model, $key);
+
+        if ($expandPath) {
+            $result = [];
+            foreach ($rawValues as $path) {
+                $path = explode('.', $path);
+                $value = '';
+                foreach ($path as $item) {
+                    $value .= $item;
+                    $result[] = $value;
+                    $value .= '.';
+                }
+
+            }
+            $result = array_values(array_unique($result));
+        } else {
+            $result = $rawValues;
         }
 
         return $result;

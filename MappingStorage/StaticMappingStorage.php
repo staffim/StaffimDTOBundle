@@ -33,16 +33,15 @@ class StaticMappingStorage extends AbstractMappingStorage
         $this->config = $config;
     }
 
-    protected function isValuePresent($model, $key)
-    {
-        return true;
-    }
-
-    protected function getValue($model, $key)
+    protected function getRawFields($model, $key)
     {
         return $this->getModelConfig($model)[$key];
     }
 
+    /**
+     * @param mixed $model
+     * @return array
+     */
     private function getModelConfig($model)
     {
         $config = [];

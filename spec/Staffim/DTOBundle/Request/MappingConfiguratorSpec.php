@@ -20,10 +20,11 @@ class MappingConfiguratorSpec extends ObjectBehavior
 
     function it_should_always_allow_map_id($storage, ModelInterface $model)
     {
-        $storage->getFieldsToShow($model)->willReturn(['some field']);
+        $storage->getFieldsToShow($model)->willReturn(['some.field']);
         $storage->getFieldsToHide($model)->willReturn([]);
 
         $this->isPropertyVisible($model, 'id')->shouldReturn(true);
+        $this->isPropertyVisible($model, 'some.field')->shouldReturn(true);
     }
 
     function it_should_detect_relations_inheritance($storage, ModelInterface $model)

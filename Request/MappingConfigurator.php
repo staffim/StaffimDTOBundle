@@ -2,20 +2,19 @@
 
 namespace Staffim\DTOBundle\Request;
 
-use Staffim\DTOBundle\MappingStorage\AbstractMappingStorage;
-use Staffim\DTOBundle\Model\ModelInterface;
+use Staffim\DTOBundle\MappingStorage\MappingStorageInterface;
 
-class MappingConfigurator
+class MappingConfigurator implements  MappingConfiguratorInterface
 {
     /**
-     * @var \Staffim\DTOBundle\MappingStorage\AbstractMappingStorage
+     * @var \Staffim\DTOBundle\MappingStorage\MappingStorageInterface
      */
     private $storage;
 
     /**
-     * @param \Staffim\DTOBundle\MappingStorage\AbstractMappingStorage $storage
+     * @param \Staffim\DTOBundle\MappingStorage\MappingStorageInterface $storage
      */
-    public function __construct(AbstractMappingStorage $storage)
+    public function __construct(MappingStorageInterface $storage)
     {
         $this->storage = $storage;
     }
@@ -39,17 +38,7 @@ class MappingConfigurator
         }
 
         if (count($fieldsToShow) > 0) {
-            foreach ($fieldsToShow as $fieldToShow) {
-                if ($propertyName === $fieldToShow) {
-                    return true;
-                }
-
-                if (strpos($fieldToShow, $propertyName . '.') === 0) {
-                    return true;
-                }
-            }
-
-            return false;
+            return in_array($propertyName, $fieldsToShow);
         }
 
         return !in_array($propertyName, $fieldsToHide);

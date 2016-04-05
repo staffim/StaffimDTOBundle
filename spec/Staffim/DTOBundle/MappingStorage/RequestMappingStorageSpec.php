@@ -22,11 +22,13 @@ class RequestMappingStorageSpec extends ObjectBehavior
 
     function it_should_parse_fields_from_comma_separated_string($request, ModelInterface $model)
     {
-        $request->get('fields')->willReturn('name, age,sex');
-        $request->get('hideFields')->willReturn([]);
         $request->get('fields', [])->willReturn('name, age,sex');
-        $request->get('hideFields', [])->willReturn([]);
-
         $this->getFieldsToShow($model)->shouldReturn(['name', 'age', 'sex']);
+    }
+
+    function it_should_extract_property_path($request, ModelInterface $model)
+    {
+        $request->get('fields', [])->willReturn(['shop.merchandiser.name', 'shop.merchandiser.email']);
+        $this->getFieldsToShow($model)->shouldReturn(['shop', 'shop.merchandiser', 'shop.merchandiser.name', 'shop.merchandiser.email']);
     }
 }

@@ -22,15 +22,7 @@ class RequestMappingStorage extends AbstractMappingStorage
     /**
      * @inheritdoc
      */
-    protected function isValuePresent($model, $key)
-    {
-        return !!$this->requestStack->getCurrentRequest()->get($key);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getValue($model, $key)
+    protected function getRawFields($model, $key)
     {
         $value = $this->requestStack->getCurrentRequest()->get($key, []);
 

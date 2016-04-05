@@ -2,42 +2,59 @@
 
 namespace Staffim\DTOBundle\MappingStorage;
 
-class CacheMappingStorage extends AbstractMappingStorage
+class CacheMappingStorage implements MappingStorageInterface
 {
+    /**
+     * @var \Staffim\DTOBundle\MappingStorage\MappingStorageInterface
+     */
+    private $storage;
+
     /**
      * @var array
      */
     private $cache = [];
 
     /**
-     * @inheritdoc
+     * @param \Staffim\DTOBundle\MappingStorage\MappingStorageInterface $storage
      */
-    protected function isValuePresent($model, $key)
+    public function __construct(MappingStorageInterface $storage)
     {
-        return array_key_exists($key, $this->cache);
+        $this->storage = $storage;
     }
 
     /**
      * @inheritdoc
      */
-    protected function getValue($model, $key)
+    public function getRelations($model)
     {
-        return $this->cache[$key];
-    }
-
-    /**
-     * @param mixed $model
-     * @param string $key
-     * @return mixed
-     */
-    public function getFields($model, $key)
-    {
-        $result = parent::getFields($model, $key);
-
-        if (!$this->isValuePresent($model, $key)) {
-            $this->cache[$key] = $result;
+        if (!array_key_exists('relations', $this->cache)) {
+            $this->cache['relations'] = $this->storage->getRelations($model);
         }
 
-        return $result;
+        return $this->cache['relations'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldsToShow($model)
+    {
+        if (!array_key_exists('fieldsToShow', $this->cache)) {
+            $this->cache['fieldsToShow'] = $this->storage->getFieldsToShow($model);
+        }
+
+        return $this->cache['fieldsToShow'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldsToHide($model)
+    {
+        if (!array_key_exists('fieldsToHide', $this->cache)) {
+            $this->cache['fieldsToHide'] = $this->storage->getFieldsToHide($model);
+        }
+
+        return $this->cache['fieldsToHide'];
     }
 }
