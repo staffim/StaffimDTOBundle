@@ -24,6 +24,10 @@ class HiddenFieldsExclusionStrategy implements ExclusionStrategyInterface
 
         $data = $context->getObject();
 
+        if ($data instanceof \Staffim\DTOBundle\Hateoas\CollectionRepresentation) {
+            return false;
+        }
+
         return is_object($data) && $property->getValue($data) === UnknownValue::create();
     }
 }

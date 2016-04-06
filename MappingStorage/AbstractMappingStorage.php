@@ -5,58 +5,52 @@ namespace Staffim\DTOBundle\MappingStorage;
 abstract class AbstractMappingStorage implements MappingStorageInterface
 {
     /**
-     * @param mixed $model
      * @param string $key
      * @return array
      */
-    abstract protected function getRawFields($model, $key);
+    abstract protected function getRawFields($key);
 
     /**
-     * @param mixed $model
      * return array
      */
-    public function getRelations($model)
+    public function getRelations()
     {
-        return $this->getFields($model, 'relations');
+        return $this->getFields('relations');
     }
 
     /**
-     * @param mixed $model
      * @return array
      */
-    public function getFieldsToShow($model)
+    public function getFieldsToShow()
     {
-        return $this->getFields($model, 'fields');
+        return $this->getFields('fields');
     }
 
     /**
-     * @param mixed $model
      * @return array
      */
-    public function getFieldsToHide($model)
+    public function getFieldsToHide()
     {
-        return $this->getFields($model, 'hideFields', false);
+        return $this->getFields('hideFields', false);
     }
 
     /**
-     * @param mixed $model
      * @param string $key
      * @return array
      */
-    private function getFields($model, $key, $expandPath = true)
+    private function getFields($key, $expandPath = true)
     {
-        return $this->compileFields($model, $key, $expandPath);
+        return $this->compileFields($key, $expandPath);
     }
 
     /**
-     * @param mixed $model
      * @param string $key
      * @param bool $expandPath
      * @return array
      */
-    private function compileFields($model, $key, $expandPath = true)
+    private function compileFields($key, $expandPath = true)
     {
-        $rawValues = $this->getRawFields($model, $key);
+        $rawValues = $this->getRawFields($key);
 
         if ($expandPath) {
             $result = [];

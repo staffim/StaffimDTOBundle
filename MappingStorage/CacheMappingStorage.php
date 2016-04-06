@@ -25,10 +25,10 @@ class CacheMappingStorage implements MappingStorageInterface
     /**
      * @inheritdoc
      */
-    public function getRelations($model)
+    public function getRelations()
     {
         if (!array_key_exists('relations', $this->cache)) {
-            $this->cache['relations'] = $this->storage->getRelations($model);
+            $this->cache['relations'] = $this->storage->getRelations();
         }
 
         return $this->cache['relations'];
@@ -37,10 +37,10 @@ class CacheMappingStorage implements MappingStorageInterface
     /**
      * @inheritdoc
      */
-    public function getFieldsToShow($model)
+    public function getFieldsToShow()
     {
         if (!array_key_exists('fieldsToShow', $this->cache)) {
-            $this->cache['fieldsToShow'] = $this->storage->getFieldsToShow($model);
+            $this->cache['fieldsToShow'] = $this->storage->getFieldsToShow();
         }
 
         return $this->cache['fieldsToShow'];
@@ -49,10 +49,10 @@ class CacheMappingStorage implements MappingStorageInterface
     /**
      * @inheritdoc
      */
-    public function getFieldsToHide($model)
+    public function getFieldsToHide()
     {
         if (!array_key_exists('fieldsToHide', $this->cache)) {
-            $this->cache['fieldsToHide'] = $this->storage->getFieldsToHide($model);
+            $this->cache['fieldsToHide'] = $this->storage->getFieldsToHide();
         }
 
         return $this->cache['fieldsToHide'];
