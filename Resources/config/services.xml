@@ -6,8 +6,13 @@
     <parameters>
         <parameter key="staffim_dto.dto.factory.class">Staffim\DTOBundle\DTO\Factory</parameter>
         <parameter key="staffim_dto.dto.property_accessor.class">Staffim\DTOBundle\DTO\PropertyAccessor</parameter>
-        <parameter key="staffim_dto.request_mapping_configurator.class">Staffim\DTOBundle\Request\RequestMappingConfigurator</parameter>
-        <parameter key="staffim_dto.cached_request_mapping_configurator.class">Staffim\DTOBundle\Request\CachedRequestMappingConfigurator</parameter>
+
+        <parameter key="staffim_dto.mapping_storage.static.class">Staffim\DTOBundle\MappingStorage\StaticMappingStorage</parameter>
+        <parameter key="staffim_dto.mapping_storage.request.class">Staffim\DTOBundle\MappingStorage\RequestMappingStorage</parameter>
+        <parameter key="staffim_dto.mapping_storage.cache.class">Staffim\DTOBundle\MappingStorage\CacheMappingStorage</parameter>
+
+        <parameter key="staffim_dto.mapping_configurator.class">Staffim\DTOBundle\Request\MappingConfigurator</parameter>
+
         <parameter key="staffim_dto.dto.mapper.class">Staffim\DTOBundle\DTO\Mapper</parameter>
         <parameter key="staffim_dto.serializer.model_handler.class">Staffim\DTOBundle\Serializer\ModelHandler</parameter>
         <parameter key="staffim_dto.hateoas.dto_relation_provider.class">Staffim\DTOBundle\Hateoas\DTORelationProvider</parameter>
@@ -32,20 +37,19 @@
         <service id="staffim_dto.dto.property_accessor" class="%staffim_dto.dto.property_accessor.class%">
         </service>
 
-        <service
-            id="staffim_dto.request_mapping_configurator"
-            class="%staffim_dto.request_mapping_configurator.class%"
-            public="false"
-        >
+        <!-- storages -->
+        <service id="staffim_dto.mapping_storage.static" class="%staffim_dto.mapping_storage.static.class%" public="false">
+            <argument>%staffim_dto.default_mapping%</argument>
+        </service>
+        <service id="staffim_dto.mapping_storage.request" class="%staffim_dto.mapping_storage.request.class%" public="false">
             <argument type="service" id="request_stack"/>
         </service>
+        <service id="staffim_dto.mapping_storage.cache" class="%staffim_dto.mapping_storage.cache.class%" public="false">
+            <argument type="service" id="staffim_dto.mapping_storage.request"/>
+        </service>
 
-        <service
-            id="staffim_dto.cached_request_mapping_configurator"
-            class="%staffim_dto.cached_request_mapping_configurator.class%"
-            public="false"
-        >
-            <argument type="service" id="request_stack"/>
+        <service id="staffim_dto.mapping_configurator" class="%staffim_dto.mapping_configurator.class%">
+            <argument type="service" id="staffim_dto.mapping_storage"/>
         </service>
 
         <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">

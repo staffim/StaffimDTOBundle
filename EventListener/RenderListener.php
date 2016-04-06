@@ -4,6 +4,7 @@ namespace Staffim\DTOBundle\EventListener;
 
 use JMS\Serializer\SerializerInterface;
 
+use Staffim\DTOBundle\Serializer\Exclusion\HiddenFieldsExclusionStrategy;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -80,6 +81,7 @@ class RenderListener
             }
             $context = new SerializationContext;
             $context->setSerializeNull(true);
+            $context->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
             $context->setGroups($render->getGroups() ?: ['Default']);
             $content = $this->serializer->serialize($presentationData, $render->getFormat(), $context);
 

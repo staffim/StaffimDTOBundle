@@ -2,6 +2,8 @@
 
 namespace Staffim\DTOBundle\Tests;
 
+use Staffim\DTOBundle\DTO\UnknownValue;
+use Staffim\DTOBundle\Serializer\Exclusion\HiddenFieldsExclusionStrategy;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Staffim\DTOBundle\Serializer\SerializationContext;
 
@@ -57,6 +59,16 @@ class RelationTest extends KernelTestCase
         $this->assertEquals('bar', $result['_embedded']['model']['_embedded']['model']['id']);
     }
 
+    public function testHideFields()
+    {
+        $bar = new Foo('Some');
+
+        $bar->model = UnknownValue::create();
+        $result = $this->serialize($bar);
+
+        $this->assertArrayNotHasKey('model', $result);
+    }
+
     private function getSerializer()
     {
         return static::$kernel->getContainer()->get('serializer');
@@ -67,6 +79,7 @@ class RelationTest extends KernelTestCase
         if (!$this->serializationContext) {
             $this->serializationContext = new SerializationContext;
             $this->serializationContext->setSerializeNull(true);
+            $this->serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
         }
 
         return $this->serializationContext;

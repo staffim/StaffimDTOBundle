@@ -5,29 +5,16 @@ namespace Staffim\DTOBundle\Request;
 interface MappingConfiguratorInterface
 {
     /**
-     * @return array
-     */
-    public function getRelations();
-
-    /**
-     * @return array
-     */
-    public function getFieldsToShow();
-
-    /**
-     * @return array
-     */
-    public function getFieldsToHide();
-
-    /**
+     * @param mixed $model
      * @param string $propertyName
      * @return bool
      */
-    public function isPropertyVisible($propertyName);
+    public function isPropertyVisible($model, $propertyName);
 
     /**
+     * @param mixed $model
      * @param string $propertyName
      * @return bool
      */
-    public function hasRelation($propertyName);
+    public function hasRelation($model, $propertyName);
 }

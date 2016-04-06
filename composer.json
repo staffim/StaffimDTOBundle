@@ -9,7 +9,8 @@
         "symfony/property-access": "~2.4 || ~3.0",
         "symfony/http-kernel": "~2.4 || ~3.0",
         "symfony/event-dispatcher": "~2.4 || ~3.0",
-        "willdurand/hateoas-bundle": "~1.0"
+        "willdurand/hateoas-bundle": "~1.0",
+        "php-jsonpatch/php-jsonpatch": "~1.2"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.2",
