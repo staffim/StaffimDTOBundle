@@ -5,20 +5,17 @@ namespace Staffim\DTOBundle\MappingStorage;
 interface MappingStorageInterface
 {
     /**
-     * @param mixed $model
      * return array
      */
-    public function getRelations($model);
+    public function getRelations();
 
     /**
-     * @param mixed $model
      * @return array
      */
-    public function getFieldsToShow($model);
+    public function getFieldsToShow();
 
     /**
-     * @param mixed $model
      * @return array
      */
-    public function getFieldsToHide($model);
+    public function getFieldsToHide();
 }

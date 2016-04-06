@@ -3,12 +3,12 @@
 namespace spec\Staffim\DTOBundle\Request;
 
 use PhpSpec\ObjectBehavior;
-use Staffim\DTOBundle\MappingStorage\StaticMappingStorage;
+use Staffim\DTOBundle\MappingStorage\RequestMappingStorage;
 use Staffim\DTOBundle\Model\ModelInterface;
 
 class MappingConfiguratorSpec extends ObjectBehavior
 {
-    function let(StaticMappingStorage $storage)
+    function let(RequestMappingStorage $storage)
     {
         $this->beConstructedWith($storage);
     }
@@ -18,22 +18,22 @@ class MappingConfiguratorSpec extends ObjectBehavior
         $this->shouldHaveType('Staffim\DTOBundle\Request\MappingConfigurator');
     }
 
-    function it_should_always_allow_map_id($storage, ModelInterface $model)
+    function it_should_always_allow_map_id($storage)
     {
-        $storage->getFieldsToShow($model)->willReturn(['some.field']);
-        $storage->getFieldsToHide($model)->willReturn([]);
+        $storage->getFieldsToShow()->willReturn(['some.field']);
+        $storage->getFieldsToHide()->willReturn([]);
 
-        $this->isPropertyVisible($model, 'id')->shouldReturn(true);
-        $this->isPropertyVisible($model, 'some.field')->shouldReturn(true);
+        $this->isPropertyVisible('id')->shouldReturn(true);
+        $this->isPropertyVisible('some.field')->shouldReturn(true);
     }
 
-    function it_should_detect_relations_inheritance($storage, ModelInterface $model)
+    function it_should_detect_relations_inheritance($storage)
     {
-        $storage->getRelations($model)->willReturn(['parent.name', 'address']);
+        $storage->getRelations()->willReturn(['parent.name', 'address']);
 
-        $this->hasRelation($model, 'parent')->shouldReturn(true);
-        $this->hasRelation($model, 'parent.name')->shouldReturn(true);
-        $this->hasRelation($model, 'address')->shouldReturn(true);
-        $this->hasRelation($model, 'someRelation')->shouldReturn(false);
+        $this->hasRelation('parent')->shouldReturn(true);
+        $this->hasRelation('parent.name')->shouldReturn(true);
+        $this->hasRelation('address')->shouldReturn(true);
+        $this->hasRelation('someRelation')->shouldReturn(false);
     }
 }

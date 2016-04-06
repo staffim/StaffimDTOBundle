@@ -20,14 +20,13 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param mixed $model
      * @param string $propertyName
      * @return bool
      */
-    public function isPropertyVisible($model, $propertyName)
+    public function isPropertyVisible($propertyName)
     {
-        $fieldsToShow = $this->storage->getFieldsToShow($model);
-        $fieldsToHide = $this->storage->getFieldsToHide($model);
+        $fieldsToShow = $this->storage->getFieldsToShow();
+        $fieldsToHide = $this->storage->getFieldsToHide();
 
         if (count($fieldsToShow) === 0 && count($fieldsToHide) === 0) {
             return true;
@@ -45,13 +44,12 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param mixed $model
      * @param string $propertyName
      * @return bool
      */
-    public function hasRelation($model, $propertyName)
+    public function hasRelation($propertyName)
     {
-        foreach ($this->storage->getRelations($model) as $relation) {
+        foreach ($this->storage->getRelations() as $relation) {
             if ($propertyName === $relation) {
                 return true;
             }

@@ -51,7 +51,6 @@ class RenderListener
         }
         $route = $event->getRequest()->attributes->get('_route');
         $routeParams = $event->getRequest()->attributes->get('_route_params', []);
-        $pagination = $event->getRequest()->attributes->get('_');
         $data = $event->getControllerResult();
 
         $response = new Response();
