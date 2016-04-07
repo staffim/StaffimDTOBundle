@@ -7,7 +7,6 @@
         <parameter key="staffim_dto.dto.factory.class">Staffim\DTOBundle\DTO\Factory</parameter>
         <parameter key="staffim_dto.dto.property_accessor.class">Staffim\DTOBundle\DTO\PropertyAccessor</parameter>
 
-        <parameter key="staffim_dto.mapping_storage.static.class">Staffim\DTOBundle\MappingStorage\StaticMappingStorage</parameter>
         <parameter key="staffim_dto.mapping_storage.request.class">Staffim\DTOBundle\MappingStorage\RequestMappingStorage</parameter>
         <parameter key="staffim_dto.mapping_storage.cache.class">Staffim\DTOBundle\MappingStorage\CacheMappingStorage</parameter>
 
@@ -38,9 +37,6 @@
         </service>
 
         <!-- storages -->
-        <service id="staffim_dto.mapping_storage.static" class="%staffim_dto.mapping_storage.static.class%" public="false">
-            <argument>%staffim_dto.default_mapping%</argument>
-        </service>
         <service id="staffim_dto.mapping_storage.request" class="%staffim_dto.mapping_storage.request.class%" public="false">
             <argument type="service" id="request_stack"/>
         </service>
