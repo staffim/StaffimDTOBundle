@@ -217,10 +217,16 @@ class DTOParamConverter implements ParamConverterInterface
      */
     protected function applyPatch(ModelInterface $model, $patchOperations)
     {
-        $document = $this->serializer->serialize($this->mapper->map($model), 'json', $this->serializationContext);
-        $patch = new Patch($document, $patchOperations);
+        try {
+            $document = $this->serializer->serialize($this->mapper->map($model), 'json', $this->serializationContext);
+            $patch = new Patch($document, $patchOperations);
 
-        return $patch->apply();
+            return $patch->apply();
+        } catch (Patch\FailedTestException $exception) {
+            throw new Exception($exception->getMessage(), 417, $exception);
+        } catch (Patch\Exception $exception) {
+            throw new Exception($exception->getMessage(), 400, $exception);
+        }
     }
 
     /**
