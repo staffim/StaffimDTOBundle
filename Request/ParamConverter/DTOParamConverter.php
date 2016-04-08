@@ -7,6 +7,7 @@ use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 
+use Staffim\DTOBundle\Serializer\Exclusion\HiddenFieldsExclusionStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -57,6 +58,7 @@ class DTOParamConverter implements ParamConverterInterface
         $this->filterer = $filterer;
         $this->serializationContext = new SerializationContext;
         $this->serializationContext->setSerializeNull(true);
+        $this->serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
     }
 
     /**
