@@ -24,9 +24,9 @@ class MapperSpec extends ObjectBehavior
         EventDispatcherInterface $eventDispatcher
     ) {
 
-        $mappingConfigurator->isPropertyVisible('id')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['id'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(false);
 
         $this->beConstructedWith($propertyAccessor, $mappingConfigurator, $factory, $eventDispatcher);
     }
@@ -68,9 +68,9 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_relation_like_object($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'a'])->willReturn(true);
 
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
@@ -85,8 +85,8 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_relation_like_id($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2)
     {
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(false);
 
         $factory->create($model1)->willReturn($dto1);
         $model2->getId()->willReturn('id');
@@ -98,8 +98,8 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_collection_relation_like_ids($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(false);
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
 
         $factory->create($model1)->willReturn($dto1);
 
@@ -113,10 +113,10 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_collection_relation_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2, ModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(true);
 
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'a'])->willReturn(true);
 
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
@@ -136,9 +136,9 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_collection_embedded_relation_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, EmbeddedModelInterface $model2, ModelDTO $dto2, ModelCollection $collection)
     {
-        $mappingConfigurator->hasRelation('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'a'])->willReturn(true);
 
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
@@ -155,8 +155,8 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_convert_embedded_collection_like_objects($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model1, ModelDTO $dto1, ModelInterface $model2, ModelDTO $dto2, EmbeddedModelCollection $collection)
     {
-        $mappingConfigurator->isPropertyVisible('a')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.a')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'a'])->willReturn(true);
 
         $factory->create($model1)->willReturn($dto1);
         $factory->create($model2)->willReturn($dto2);
@@ -179,8 +179,8 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_hide_specified_fields($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $model, UserDTO $userDTO)
     {
-        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
-        $mappingConfigurator->isPropertyVisible('parent')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['name'])->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['parent'])->willReturn(true);
 
         $factory->create($model)->willReturn($userDTO);
 
@@ -197,13 +197,13 @@ class MapperSpec extends ObjectBehavior
 
     function it_should_hide_fields_in_embedded_documents($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $user, UserDTO $userDTO, ModelInterface $parent, ParentDTO $parentDTO)
     {
-        $mappingConfigurator->isPropertyVisible('id')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
-        $mappingConfigurator->isPropertyVisible('parent')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('parent.name')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('parent.id')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['id'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['name'])->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['parent'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['parent', 'name'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['parent', 'id'])->willReturn(true);
 
-        $mappingConfigurator->hasRelation('parent')->willReturn(true);
+        $mappingConfigurator->hasRelation(['parent'])->willReturn(true);
 
         $factory->create($user)->willReturn($userDTO);
         $factory->create($parent)->willReturn($parentDTO);
@@ -238,15 +238,15 @@ class MapperSpec extends ObjectBehavior
         ParentDTO $parentDTO,
         ModelCollection $collection
     ) {
-        $mappingConfigurator->hasRelation('a')->willReturn(true);
-        $mappingConfigurator->hasRelation('a.parent')->willReturn(true);
+        $mappingConfigurator->hasRelation(['a'])->willReturn(true);
+        $mappingConfigurator->hasRelation(['a', 'parent'])->willReturn(true);
 
-        $mappingConfigurator->isPropertyVisible('name')->willReturn(false);
-        $mappingConfigurator->isPropertyVisible('a.id')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.name')->willReturn(false);
-        $mappingConfigurator->isPropertyVisible('a.parent')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.parent.id')->willReturn(true);
-        $mappingConfigurator->isPropertyVisible('a.parent.name')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['name'])->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['a', 'id'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'name'])->willReturn(false);
+        $mappingConfigurator->isPropertyVisible(['a','parent'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'parent', 'id'])->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['a', 'parent', 'name'])->willReturn(true);
 
         $factory->create($model)->willReturn($modelDto);
         $factory->create($user)->willReturn($userDTO);
@@ -273,14 +273,14 @@ class MapperSpec extends ObjectBehavior
         $propertyAccessor->setValue($parentDTO, 'name', 'Adam')->shouldBeCalled();
 
         //configurator calls
-        $mappingConfigurator->isPropertyVisible('a')->shouldBeCalled();
+        $mappingConfigurator->isPropertyVisible(['a'])->shouldBeCalled();
 
         $this->map($model)->shouldReturn($modelDto);
     }
 
     function it_should_return_default_value_when_exception_was_thrown($propertyAccessor, $mappingConfigurator, $factory, ModelInterface $user, GroupDTO $groupDTO)
     {
-        $mappingConfigurator->isPropertyVisible('access')->willReturn(true);
+        $mappingConfigurator->isPropertyVisible(['access'])->willReturn(true);
 
         $factory->create($user)->willReturn($groupDTO);
 

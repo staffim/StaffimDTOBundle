@@ -5,14 +5,14 @@ namespace Staffim\DTOBundle\Request;
 interface MappingConfiguratorInterface
 {
     /**
-     * @param string $propertyName
+     * @param array $propertyPath
      * @return bool
      */
-    public function isPropertyVisible($propertyName);
+    public function isPropertyVisible(array $propertyPath);
 
     /**
-     * @param string $propertyName
+     * @param array $propertyPath
      * @return bool
      */
-    public function hasRelation($propertyName);
+    public function hasRelation(array $propertyPath);
 }

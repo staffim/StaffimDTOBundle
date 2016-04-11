@@ -79,11 +79,11 @@ class Mapper
 
     /**
      * @param \Staffim\DTOBundle\Collection\ModelIteratorInterface $collection
-     * @param string $parentPropertyName
+     * @param array $parentPropertyPath
      * @return array
      * @throws \Staffim\DTOBundle\Exception\MappingException
      */
-    private function doMapCollection(ModelIteratorInterface $collection, $parentPropertyName = null)
+    private function doMapCollection(ModelIteratorInterface $collection, array $parentPropertyPath = [])
     {
         $result = [];
         foreach ($collection as $model) {
@@ -91,7 +91,7 @@ class Mapper
                 throw new MappingException('Class \''. get_class($model) .'\' should implement \\Staffim\\DTOBundle\\Model\\ModelInterface');
             }
 
-            $result[] = $this->doMap($model, $parentPropertyName);
+            $result[] = $this->doMap($model, $parentPropertyPath);
         }
 
         return $result;
@@ -99,10 +99,10 @@ class Mapper
 
     /**
      * @param \Staffim\DTOBundle\Model\ModelInterface $model
-     * @param string $parentPropertyName
+     * @param array $parentPropertyPath
      * @return \Staffim\DTOBundle\DTO\Model\DTOInterface
      */
-    private function doMap(ModelInterface $model, $parentPropertyName = null)
+    private function doMap(ModelInterface $model, array $parentPropertyPath = [])
     {
         $dto = $this->factory->create($model);
         $properties = get_object_vars($dto);
@@ -110,7 +110,7 @@ class Mapper
         // @todo trigger pre event
 
         foreach ($properties as $propertyName => $property) {
-            $this->updateProperty($model, $dto, $propertyName, $parentPropertyName);
+            $this->updateProperty($model, $dto, $propertyName, $parentPropertyPath);
         }
 
         if ($this->eventDispatcher) {
@@ -127,13 +127,13 @@ class Mapper
      * @param mixed $model
      * @param \Staffim\DTOBundle\DTO\Model\DTOInterface $dto
      * @param string $propertyName
-     * @param string $parentPropertyName
+     * @param array $fullPropertyPath
      */
-    private function updateProperty($model, DTOInterface $dto, $propertyName, $parentPropertyName = null)
+    private function updateProperty($model, DTOInterface $dto, $propertyName, array $fullPropertyPath = [])
     {
-        $fullPropertyName = $parentPropertyName ? $parentPropertyName . '.' . $propertyName : $propertyName;
+        $fullPropertyPath[] = $propertyName;
 
-        if (!$this->mappingConfigurator->isPropertyVisible($fullPropertyName)) {
+        if (!$this->mappingConfigurator->isPropertyVisible($fullPropertyPath)) {
             $modelValue = UnknownValue::create();
         } else {
             try {
@@ -146,27 +146,27 @@ class Mapper
         $this->propertyAccessor->setValue(
             $dto,
             $propertyName,
-            $this->convertValue($modelValue, $fullPropertyName)
+            $this->convertValue($modelValue, $fullPropertyPath)
         );
     }
 
     /**
      * @param mixed $modelValue
-     * @param string $propertyName
+     * @param array $propertyPath
      * @return array|object
      */
-    private function convertValue($modelValue, $propertyName)
+    private function convertValue($modelValue, array $propertyPath)
     {
         if ($modelValue instanceof EmbeddedModelCollection) {
-            $value = $this->doMapCollection($modelValue, $propertyName);
+            $value = $this->doMapCollection($modelValue, $propertyPath);
         } elseif (is_array($modelValue) || (is_object($modelValue) && ($modelValue instanceof \Traversable))) {
             $value = [];
             foreach ($modelValue as $key => $modelValueItem) {
-                $value[$key] = $this->convertValue($modelValueItem, $propertyName);
+                $value[$key] = $this->convertValue($modelValueItem, $propertyPath);
             }
         } elseif ($modelValue instanceof ModelInterface) {
-            if ($this->mappingConfigurator->hasRelation($propertyName) || $modelValue instanceof EmbeddedModelInterface) {
-                $value = $this->doMap($modelValue, $propertyName);
+            if ($this->mappingConfigurator->hasRelation($propertyPath) || $modelValue instanceof EmbeddedModelInterface) {
+                $value = $this->doMap($modelValue, $propertyPath);
             } else {
                 $value = $modelValue->getId();
             }

@@ -20,10 +20,10 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param string $propertyName
+     * @param array $propertyPath
      * @return bool
      */
-    public function isPropertyVisible($propertyName)
+    public function isPropertyVisible(array $fullPropertyPath)
     {
         $fieldsToShow = $this->storage->getFieldsToShow();
         $fieldsToHide = $this->storage->getFieldsToHide();
@@ -32,33 +32,59 @@ class MappingConfigurator implements  MappingConfiguratorInterface
             return true;
         }
 
-        if ($propertyName === 'id' || strpos($propertyName, '.id') === strlen($propertyName) - 3) {
+        $propertyName = array_pop($fullPropertyPath);
+        if ($propertyName === 'id') {
             return true;
         }
 
-        if (count($fieldsToShow) > 0) {
-            return in_array($propertyName, $fieldsToShow);
+        $propertyPath = [$propertyName];
+
+        if ($fullPropertyPath) {
+            $fieldsToShow = $this->getPropertyConfig($fullPropertyPath, $fieldsToShow);
+            $fieldsToHide = $this->getPropertyConfig($fullPropertyPath, $fieldsToHide);
         }
 
-        return !in_array($propertyName, $fieldsToHide);
-    }
+        if (count($fieldsToShow) > 0) {
+            $showPropertyConfig = $this->getPropertyConfig($propertyPath, $fieldsToShow);
 
-    /**
-     * @param string $propertyName
-     * @return bool
-     */
-    public function hasRelation($propertyName)
-    {
-        foreach ($this->storage->getRelations() as $relation) {
-            if ($propertyName === $relation) {
-                return true;
-            }
+            return is_array($showPropertyConfig);
+        }
 
-            if (strpos($relation, $propertyName . '.') === 0) {
-                return true;
-            }
+        if (is_array($fieldsToHide)) {
+            $hideConfig = $this->getPropertyConfig($propertyPath, $fieldsToHide);
+
+            return !is_array($hideConfig) || count($hideConfig) > 0;
         }
 
         return false;
+    }
+
+    /**
+     * @param array $propertyName
+     * @return bool
+     */
+    public function hasRelation(array $propertyPath)
+    {
+        return is_array($this->getPropertyConfig($propertyPath, $this->storage->getRelations()));
+    }
+
+    /**
+     * @param array $path
+     * @param array $fieldsTree
+     * @return array|null
+     */
+    private function getPropertyConfig(array $path, array $fieldsTree = [])
+    {
+        $propertyConfig = $fieldsTree;
+
+        foreach ($path as $property) {
+            if (!array_key_exists($property, $propertyConfig)) {
+                return null;
+            }
+
+            $propertyConfig = $propertyConfig[$property];
+        }
+
+        return $propertyConfig;
     }
 }
