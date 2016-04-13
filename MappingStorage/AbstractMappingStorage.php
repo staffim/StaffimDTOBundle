@@ -11,15 +11,15 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     abstract protected function getRawFields($key);
 
     /**
-     * return array
+     * return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getRelations()
     {
-        return $this->getFields('relations');
+        return $this->getFields('relations', false);
     }
 
     /**
-     * @return array
+     * @return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getFieldsToShow()
     {
@@ -27,20 +27,20 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @return array
+     * @return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getFieldsToHide()
     {
-        return $this->getFields('hideFields', false);
+        return $this->getFields('hideFields');
     }
 
     /**
      * @param string $key
      * @return array
      */
-    private function getFields($key, $expandPath = true)
+    private function getFields($key, $asField = true)
     {
-        return $this->compileFields($key, $expandPath);
+        return $this->compileFields($key, $asField);
     }
 
     /**
@@ -48,27 +48,22 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
      * @param bool $expandPath
      * @return array
      */
-    private function compileFields($key, $expandPath = true)
+    private function compileFields($key, $asField = true)
     {
-        $rawValues = $this->getRawFields($key);
+        return $this->buildConfig($this->getRawFields($key), $asField);
+    }
 
-        if ($expandPath) {
-            $result = [];
-            foreach ($rawValues as $path) {
-                $path = explode('.', $path);
-                $value = '';
-                foreach ($path as $item) {
-                    $value .= $item;
-                    $result[] = $value;
-                    $value .= '.';
-                }
-
-            }
-            $result = array_values(array_unique($result));
-        } else {
-            $result = $rawValues;
+    /**
+     * @param array $relations
+     * @return array
+     */
+    private function buildConfig(array $data, $asField)
+    {
+        $config = new Config;
+        foreach ($data as $item) {
+            $config->add(explode('.', $item), $asField);
         }
 
-        return $result;
+        return $config;
     }
 }

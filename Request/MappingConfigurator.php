@@ -20,45 +20,40 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param string $propertyName
+     * @param array $propertyPath
      * @return bool
      */
-    public function isPropertyVisible($propertyName)
+    public function isPropertyVisible(array $fullPropertyPath)
     {
         $fieldsToShow = $this->storage->getFieldsToShow();
         $fieldsToHide = $this->storage->getFieldsToHide();
 
-        if (count($fieldsToShow) === 0 && count($fieldsToHide) === 0) {
+        if ($fieldsToShow->isEmpty() && $fieldsToHide->isEmpty()) {
             return true;
         }
 
-        if ($propertyName === 'id' || strpos($propertyName, '.id') === strlen($propertyName) - 3) {
+        $propertyName = array_pop($fullPropertyPath);
+        if ($propertyName === 'id') {
             return true;
         }
 
-        if (count($fieldsToShow) > 0) {
-            return in_array($propertyName, $fieldsToShow);
+        if ($fieldsToShow->hasPath($fullPropertyPath)) {
+            return $fieldsToShow->hasField($fullPropertyPath, $propertyName);
         }
 
-        return !in_array($propertyName, $fieldsToHide);
+        if ($fieldsToHide->hasPath($fullPropertyPath)) {
+            return !$fieldsToHide->hasField($fullPropertyPath, $propertyName);
+        }
+
+        return true;
     }
 
     /**
-     * @param string $propertyName
+     * @param array $propertyName
      * @return bool
      */
-    public function hasRelation($propertyName)
+    public function hasRelation(array $propertyPath)
     {
-        foreach ($this->storage->getRelations() as $relation) {
-            if ($propertyName === $relation) {
-                return true;
-            }
-
-            if (strpos($relation, $propertyName . '.') === 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->storage->getRelations()->hasPath($propertyPath, false);
     }
 }

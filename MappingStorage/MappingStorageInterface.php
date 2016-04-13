@@ -5,17 +5,17 @@ namespace Staffim\DTOBundle\MappingStorage;
 interface MappingStorageInterface
 {
     /**
-     * return array
+     * return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getRelations();
 
     /**
-     * @return array
+     * @return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getFieldsToShow();
 
     /**
-     * @return array
+     * @return \Staffim\DTOBundle\MappingStorage\Config
      */
     public function getFieldsToHide();
 }
