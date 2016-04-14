@@ -28,7 +28,7 @@ class MapperSpec extends ObjectBehavior
         $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
         $mappingConfigurator->hasRelation(['a'])->willReturn(false);
 
-        $this->beConstructedWith($propertyAccessor, $mappingConfigurator, $factory, $eventDispatcher);
+        $this->beConstructedWith($propertyAccessor, $factory, $mappingConfigurator, $eventDispatcher);
     }
 
     function it_is_initializable()

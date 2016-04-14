@@ -50,7 +50,12 @@
 
         <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">
             <argument type="service" id="staffim_dto.dto.property_accessor"/>
+            <argument type="service" id="staffim_dto.dto.factory"/>
             <argument type="service" id="staffim_dto.mapping_configurator"/>
+        </service>
+
+        <service id="staffim_dto.patch.mapper" class="%staffim_dto.dto.mapper.class%" public="false">
+            <argument type="service" id="staffim_dto.dto.property_accessor"/>
             <argument type="service" id="staffim_dto.dto.factory"/>
         </service>
 
@@ -75,7 +80,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="validator"/>
             <call method="setMapper">
-                <argument type="service" id="staffim_dto.dto.mapper"/>
+                <argument type="service" id="staffim_dto.patch.mapper"/>
             </call>
             <call method="setFilterer">
                 <argument type="service" id="filterer"/>

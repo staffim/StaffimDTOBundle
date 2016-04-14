@@ -45,13 +45,13 @@ class Mapper
      */
     public function __construct(
         PropertyAccessorInterface $propertyAccessor,
-        MappingConfigurator $mappingConfigurator,
         Factory $factory,
+        MappingConfigurator $mappingConfigurator = null,
         EventDispatcherInterface $eventDispatcher = null
     ) {
         $this->propertyAccessor = $propertyAccessor;
-        $this->mappingConfigurator = $mappingConfigurator;
         $this->factory = $factory;
+        $this->mappingConfigurator = $mappingConfigurator;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -133,7 +133,7 @@ class Mapper
     {
         $fullPropertyPath[] = $propertyName;
 
-        if (!$this->mappingConfigurator->isPropertyVisible($fullPropertyPath)) {
+        if (!$this->isPropertyVisible($fullPropertyPath)) {
             $modelValue = UnknownValue::create();
         } else {
             try {
@@ -151,6 +151,24 @@ class Mapper
     }
 
     /**
+     * @param array $path
+     * @return bool
+     */
+    private function isPropertyVisible(array $path)
+    {
+        return !$this->mappingConfigurator || $this->mappingConfigurator->isPropertyVisible($path);
+    }
+
+    /**
+     * @param array $path
+     * @return bool
+     */
+    private function hasRelation(array $path)
+    {
+        return $this->mappingConfigurator && $this->mappingConfigurator->hasRelation($path);
+    }
+
+    /**
      * @param mixed $modelValue
      * @param array $propertyPath
      * @return array|object
@@ -165,7 +183,7 @@ class Mapper
                 $value[$key] = $this->convertValue($modelValueItem, $propertyPath);
             }
         } elseif ($modelValue instanceof ModelInterface) {
-            if ($this->mappingConfigurator->hasRelation($propertyPath) || $modelValue instanceof EmbeddedModelInterface) {
+            if ($this->hasRelation($propertyPath) || $modelValue instanceof EmbeddedModelInterface) {
                 $value = $this->doMap($modelValue, $propertyPath);
             } else {
                 $value = $modelValue->getId();
