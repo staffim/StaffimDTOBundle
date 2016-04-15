@@ -2,6 +2,8 @@
 
 namespace Staffim\DTOBundle\MappingStorage;
 
+use Staffim\DTOBundle\Exception\OutOfBoundsException;
+
 class Config
 {
     private static $emptyRoot = [
@@ -51,11 +53,6 @@ class Config
         return $this->empty;
     }
 
-    private function addRoot(array &$config, $pathItem)
-    {
-        $config[$pathItem] = self::$emptyRoot;
-    }
-
     public function hasPath(array $path, $withFields = true)
     {
         $config = $this->config;
@@ -82,10 +79,29 @@ class Config
             if (array_key_exists($pathItem, $config['children'])) {
                 $config = $config['children'][$pathItem];
             } else {
-                throw new \OutOfBoundException;
+                throw new OutOfBoundsException('Path "' . implode('.',  $path) . '" not found');
             }
         }
 
         return $config['fields'];
+    }
+
+    public function getChildrenKeys(array $path = [])
+    {
+        $config = $this->config;
+        foreach ($path as $pathItem) {
+            if (array_key_exists($pathItem, $config['children'])) {
+                $config = $config['children'][$pathItem];
+            } else {
+                throw new OutOfBoundsException('Path "' . implode('.',  $path) . '" not found');
+            }
+        }
+
+        return array_keys($config['children']);
+    }
+
+    private function addRoot(array &$config, $pathItem)
+    {
+        $config[$pathItem] = self::$emptyRoot;
     }
 }
