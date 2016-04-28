@@ -106,7 +106,9 @@ class DTOParamConverter implements ParamConverterInterface
         }
 
         $object = null;
-        if (!empty($data) || false === $configuration->isOptional()) {
+        if ((!empty($data) || false === $configuration->isOptional()) &&
+            $request->headers->get('Content-Type') != 'application/octet-stream'
+        ) {
             $object = $this->serializer->deserialize($data, $class, $options['format']);
         }
 
