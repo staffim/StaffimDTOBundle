@@ -28,6 +28,10 @@ class HiddenFieldsExclusionStrategy implements ExclusionStrategyInterface
             return false;
         }
 
+        if ($property->class == 'Hateoas\Configuration\Relation') {
+            return false;
+        }
+
         return is_object($data) && $property->getValue($data) === UnknownValue::create();
     }
 }
