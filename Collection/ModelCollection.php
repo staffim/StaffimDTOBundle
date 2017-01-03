@@ -14,12 +14,12 @@ class ModelCollection implements ModelIteratorInterface
     /**
      * @var int
      */
-    private $count;
+    protected $count;
 
     /**
      * @var \Staffim\DTOBundle\Collection\Pagination
      */
-    private $pagination;
+    protected $pagination;
 
     /**
      * Constructor.

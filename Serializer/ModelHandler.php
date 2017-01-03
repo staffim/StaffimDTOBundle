@@ -73,6 +73,8 @@ class ModelHandler implements SubscribingHandlerInterface
             if (!$object) {
                 throw new \Staffim\DTOBundle\Exception\ObjectNotFoundException($className, $model);
             }
+        } else {
+            $object = $model;
         }
 
         return $object;
