@@ -82,7 +82,7 @@
 
         <!-- Param converters -->
         <service id="staffim_dto.param_converter.dto" class="%staffim_dto.param_converter.dto.class%">
-            <argument type="service" id="serializer"/>
+            <argument type="service" id="jms_serializer"/>
             <argument type="service" id="validator"/>
             <call method="setMapper">
                 <argument type="service" id="staffim_dto.patch.mapper"/>
@@ -99,7 +99,7 @@
             <tag name="request.param_converter"/>
         </service>
         <service id="staffim_dto.render.listener" class="%staffim_dto.render.listener.class%">
-            <argument type="service" id="serializer"/>
+            <argument type="service" id="jms_serializer"/>
             <argument type="service" id="staffim_dto.dto.mapper"/>
             <tag name="kernel.event_listener" event="kernel.view" method="onKernelView"/>
         </service>
