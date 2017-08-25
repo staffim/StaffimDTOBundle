@@ -71,7 +71,7 @@ class RelationTest extends KernelTestCase
 
     private function getSerializer()
     {
-        return static::$kernel->getContainer()->get('serializer');
+        return static::$kernel->getContainer()->get('jms_serializer');
     }
 
     private function getSerializationContext()
