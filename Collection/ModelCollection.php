@@ -4,7 +4,7 @@ namespace Staffim\DTOBundle\Collection;
 
 use Doctrine\MongoDB\Query\Builder;
 
-class ModelCollection implements ModelIteratorInterface
+class ModelCollection implements ModelIteratorInterface, \Countable
 {
     /**
      * @var \Doctrine\ODM\MongoDB\Query\Query
@@ -68,6 +68,7 @@ class ModelCollection implements ModelIteratorInterface
 
     /**
      * @return int
+     * @deprecated
      */
     public function getCount()
     {
@@ -102,5 +103,10 @@ class ModelCollection implements ModelIteratorInterface
     public function toArray()
     {
         return iterator_to_array($this->getIterator());
+    }
+
+    public function count()
+    {
+        return $this->getCount();
     }
 }
