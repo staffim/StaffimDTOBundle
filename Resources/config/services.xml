@@ -11,7 +11,7 @@
         <parameter key="staffim_dto.mapping_storage.cache.class">Staffim\DTOBundle\MappingStorage\CacheMappingStorage</parameter>
 
         <parameter key="staffim_dto.mapping_configurator.class">Staffim\DTOBundle\Request\MappingConfigurator</parameter>
-        <parameter key="staffim_dto.odm.fields_primer.class">Staffim\DTOBundle\Service\FieldsPrimer</parameter>
+        <parameter key="staffim_dto.odm.fields_primer.class">Staffim\DTOBundle\ODM\FieldsPrimer</parameter>
 
         <parameter key="staffim_dto.dto.mapper.class">Staffim\DTOBundle\DTO\Mapper</parameter>
         <parameter key="staffim_dto.serializer.model_handler.class">Staffim\DTOBundle\Serializer\ModelHandler</parameter>
