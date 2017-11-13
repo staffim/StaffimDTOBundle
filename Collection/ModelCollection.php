@@ -30,24 +30,15 @@ class ModelCollection implements ModelIteratorInterface, \Countable
      */
     public function __construct(Builder $queryBuilder, Pagination $pagination = null, Sorting $sorting = null)
     {
-        $this->query = $queryBuilder->getQuery();
-        $this->count = $this->query->count();
+        $this->count = $queryBuilder->getQuery()->count();
 
-        if ($sorting || $pagination) {
-            if ($sorting) {
-                $queryBuilder->sort($sorting->fieldName, $sorting->order);
-            }
-            if ($pagination) {
-                if ($pagination->limit) {
-                    $queryBuilder->limit($pagination->limit);
-                }
-                if ($pagination->offset) {
-                    $queryBuilder->skip($pagination->offset);
-                }
-                $this->pagination = $pagination;
-            }
-            $this->query = $queryBuilder->getQuery();
+        $this->preparePagination($queryBuilder, $pagination);
+
+        if ($sorting) {
+            $queryBuilder->sort($sorting->fieldName, $sorting->order);
         }
+
+        $this->query = $queryBuilder->getQuery();
     }
 
     /**
@@ -108,5 +99,26 @@ class ModelCollection implements ModelIteratorInterface, \Countable
     public function count()
     {
         return $this->getCount();
+    }
+
+    /**
+     * @param \Doctrine\MongoDB\Aggregation\Builder|\Doctrine\MongoDB\Query\Builder $builder
+     * @param \Staffim\DTOBundle\Collection\Pagination|null $pagination
+     */
+    protected function preparePagination($builder, Pagination $pagination = null)
+    {
+        if (!$pagination) {
+            return;
+        }
+
+        if ($pagination->offset) {
+            $builder->skip($pagination->offset);
+        }
+
+        if ($pagination->limit) {
+            $builder->limit($pagination->limit);
+        }
+
+        $this->pagination = $pagination;
     }
 }
