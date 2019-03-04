@@ -20,10 +20,23 @@ class RelationProvider extends \Hateoas\Configuration\Provider\RelationProvider
     }
 
     /**
+     * @param string $class
+     * @return array
+     */
+    public function getRelations(string $class)
+    {
+        if (is_a($class, DTOInterface::class)) {
+            return $this->relationProvider->addRelations($class);
+        }
+
+        return [];
+    }
+
+    /**
      * @param \Staffim\DTOBundle\DTO\Model\DTOInterface $object
      * @return array
      */
-    public function getRelations($object)
+    public function _getRelations($object)
     {
         if ($object instanceof DTOInterface) {
             $classMetadata = new \Hateoas\Configuration\Metadata\ClassMetadata(get_class($object));

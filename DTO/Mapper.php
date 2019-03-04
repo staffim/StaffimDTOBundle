@@ -116,7 +116,7 @@ class Mapper
         if ($this->eventDispatcher) {
             $event = new PostMapEvent($model, $dto);
             $modelClassParts = explode('\\', get_class($model));
-            $modelName = \Doctrine\Common\Util\Inflector::tableize(end($modelClassParts));
+            $modelName = \Doctrine\Common\Inflector\Inflector::tableize(end($modelClassParts));
             $this->eventDispatcher->dispatch('dto.' . $modelName . '.post_map', $event);
         }
 

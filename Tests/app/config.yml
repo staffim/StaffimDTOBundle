@@ -9,5 +9,7 @@ framework:
 
 jms_serializer:
     visitors:
-        json:
+        json_serialization:
+            options: [JSON_PRETTY_PRINT, JSON_UNESCAPED_UNICODE]
+        json_deserialization:
             options: [JSON_PRETTY_PRINT, JSON_UNESCAPED_UNICODE]

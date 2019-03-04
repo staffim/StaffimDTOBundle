@@ -90,14 +90,14 @@ class RelationTest extends KernelTestCase
         return json_decode($this->getSerializer()->serialize($object, 'json', $this->getSerializationContext()), true);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->bootKernel();
     }
 }
 
 /**
- * @Hateoas\RelationProvider("staffim_dto.hateoas.dto_relation_provider:addRelations")
+ * @Hateoas\RelationProvider("expr(service('staffim_dto.hateoas.dto_relation_provider').addRelations(class))")
  */
 class Foo implements DTOInterface
 {
