@@ -4,22 +4,12 @@ namespace Staffim\DTOBundle\Collection;
 
 use Doctrine\MongoDB\Query\Builder;
 
-class ModelCollection implements ModelIteratorInterface, \Countable
+class ModelCollection extends BaseModelCollection
 {
     /**
      * @var \Doctrine\ODM\MongoDB\Query\Query
      */
     protected $query;
-
-    /**
-     * @var int
-     */
-    protected $count;
-
-    /**
-     * @var \Staffim\DTOBundle\Collection\Pagination
-     */
-    protected $pagination;
 
     /**
      * Constructor.
@@ -42,63 +32,11 @@ class ModelCollection implements ModelIteratorInterface, \Countable
     }
 
     /**
-     * @return \Staffim\DTOBundle\Collection\Pagination
-     */
-    public function getPagination()
-    {
-        return $this->pagination;
-    }
-
-    /**
      * @return \Doctrine\MongoDB\Iterator
      */
     public function getIterator()
     {
         return $this->query->getIterator();
-    }
-
-    /**
-     * @return int
-     * @deprecated
-     */
-    public function getCount()
-    {
-        return $this->count;
-    }
-
-    public function current()
-    {
-        return $this->getIterator()->current();
-    }
-
-    public function key()
-    {
-        return $this->getIterator()->key();
-    }
-
-    public function next()
-    {
-        $this->getIterator()->next();
-    }
-
-    public function rewind()
-    {
-        $this->getIterator()->rewind();
-    }
-
-    public function valid()
-    {
-        return $this->getIterator()->valid();
-    }
-
-    public function toArray()
-    {
-        return iterator_to_array($this->getIterator());
-    }
-
-    public function count()
-    {
-        return $this->getCount();
     }
 
     /**

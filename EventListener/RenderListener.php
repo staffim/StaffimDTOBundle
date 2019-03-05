@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpFoundation\Response;
 
 use Staffim\DTOBundle\DTO\Mapper;
-use Staffim\DTOBundle\Collection\ModelCollection;
+use Staffim\DTOBundle\Collection\PaginableCollectionInterface;
 use Staffim\DTOBundle\Collection\ModelIteratorInterface;
 use Staffim\DTOBundle\Hateoas\CollectionRepresentation;
 use Staffim\DTOBundle\Hateoas\PaginatedRepresentation;
@@ -65,14 +65,14 @@ class RenderListener
                 $presentationData = $this->mapper->map($data);
             } elseif ($data instanceof ModelIteratorInterface) {
                 $presentationData = new CollectionRepresentation($this->mapper->mapCollection($data));
-                if ($route && $data instanceof ModelCollection && $pagination = $data->getPagination()) {
+                if ($route && $data instanceof PaginableCollectionInterface && $pagination = $data->getPagination()) {
                     $presentationData = new PaginatedRepresentation(
                         $presentationData,
                         $route,
                         $routeParams,
                         $pagination->offset,
                         $pagination->limit,
-                        $data->getCount()
+                        $data->count()
                     );
                 }
             } else {

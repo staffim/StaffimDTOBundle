@@ -22,11 +22,11 @@ use Hateoas\Representation\RouteAwareRepresentation;
  *      "last",
  *      href = @Hateoas\Route(
  *          "expr(object.getRoute())",
- *          parameters = "expr(object.getParameters(object.getCount() - 1 - ((object.getCount() - 1) % object.getLimit())))",
+ *          parameters = "expr(object.getParameters(object.count() - 1 - ((object.count() - 1) % object.getLimit())))",
  *          absolute = "expr(object.isAbsolute())"
  *      ),
  *      exclusion = @Hateoas\Exclusion(
- *          excludeIf = "expr(object.getCount() === null || object.getLimit() == 0)"
+ *          excludeIf = "expr(object.count() === null || object.getLimit() == 0)"
  *      )
  * )
  * @Hateoas\Relation(
@@ -37,7 +37,7 @@ use Hateoas\Representation\RouteAwareRepresentation;
  *          absolute = "expr(object.isAbsolute())"
  *      ),
  *      exclusion = @Hateoas\Exclusion(
- *          excludeIf = "expr((object.getCount() !== null && (object.getOffset() + object.getLimit()) >= object.getCount()) || object.getLimit() == 0)"
+ *          excludeIf = "expr((object.count() !== null && (object.getOffset() + object.getLimit()) >= object.count()) || object.getLimit() == 0)"
  *      )
  * )
  * @Hateoas\Relation(
@@ -120,7 +120,7 @@ class PaginatedRepresentation extends RouteAwareRepresentation
      * @param int $limit
      * @return array
      */
-    public function getParameters($offset = null, $limit = null)
+    public function getParameters($offset = null, $limit = null): array
     {
         $parameters = parent::getParameters();
 
@@ -134,6 +134,14 @@ class PaginatedRepresentation extends RouteAwareRepresentation
      * @return int
      */
     public function getCount()
+    {
+        return $this->count;
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
     {
         return $this->count;
     }
