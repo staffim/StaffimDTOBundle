@@ -28,7 +28,7 @@ class EmbeddedModelCollection extends ModelCollection
     /**
      * @return \Staffim\DTOBundle\Collection\Pagination
      */
-    public function getPagination()
+    public function getPagination(): ?Pagination
     {
         return $this->modelCollection->getPagination();
     }
