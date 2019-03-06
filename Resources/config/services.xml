@@ -79,6 +79,7 @@
         </service>
         <service id="staffim_dto.hateoas.relation_provider" class="%staffim_dto.hateoas.relation_provider.class%">
             <argument type="service" id="staffim_dto.hateoas.dto_relation_provider"/>
+            <tag name="hateoas.relation_provider" />
         </service>
 
         <!-- Param converters -->

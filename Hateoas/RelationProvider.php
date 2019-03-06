@@ -3,8 +3,10 @@
 namespace Staffim\DTOBundle\Hateoas;
 
 use Staffim\DTOBundle\DTO\Model\DTOInterface;
+use Hateoas\Configuration\RelationProvider as Configuration;
+use Hateoas\Configuration\Provider\RelationProviderInterface;
 
-class RelationProvider extends \Hateoas\Configuration\Provider\RelationProvider
+class RelationProvider implements RelationProviderInterface
 {
     /**
      * @var \Staffim\DTOBundle\Hateoas\DTORelationProvider
@@ -23,9 +25,9 @@ class RelationProvider extends \Hateoas\Configuration\Provider\RelationProvider
      * @param string $class
      * @return array
      */
-    public function getRelations(string $class)
+    public function getRelations(Configuration $configuration, string $class): array
     {
-        if (is_a($class, DTOInterface::class)) {
+        if (in_array(DTOInterface::class, class_implements($class))) {
             return $this->relationProvider->addRelations($class);
         }
 
