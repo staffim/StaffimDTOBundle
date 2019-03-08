@@ -97,7 +97,7 @@ class RelationTest extends KernelTestCase
 }
 
 /**
- * @Hateoas\RelationProvider("expr(service('staffim_dto.hateoas.dto_relation_provider').addRelations(class))")
+ * @Hateoas\RelationProvider("")
  */
 class Foo implements DTOInterface
 {
