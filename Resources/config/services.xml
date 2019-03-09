@@ -66,8 +66,11 @@
 
         <!-- Serializer stuff -->
         <service id="staffim_dto.serializer.model_handler" class="%staffim_dto.serializer.model_handler.class%">
-            <call method="setDocumentManager">
+            <call method="setObjectManager">
                 <argument type="service" id="doctrine.odm.mongodb.document_manager" on-invalid="ignore"/>
+            </call>
+            <call method="setObjectManager">
+                <argument type="service" id="doctrine.orm.entity_manager" on-invalid="ignore"/>
             </call>
             <tag name="jms_serializer.subscribing_handler"/>
         </service>

@@ -2,6 +2,7 @@
 
 namespace Staffim\DTOBundle\Serializer;
 
+use Doctrine\Common\Persistence\ObjectManager;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\JsonSerializationVisitor;
@@ -11,16 +12,16 @@ use Staffim\DTOBundle\DTO\Model\DTOInterface;
 class ModelHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var \Doctrine\ODM\MongoDB\DocumentManager
+     * @var \Doctrine\Common\Persistence\ObjectManager
      */
-    private $documentManager;
+    private $objectManager;
 
     /**
-     * @param \Doctrine\ODM\MongoDB\DocumentManager $documentManager
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      */
-    public function setDocumentManager($documentManager)
+    public function setObjectManager(ObjectManager $objectManager)
     {
-        $this->documentManager = $documentManager;
+        $this->objectManager = $objectManager;
     }
 
     public static function getSubscribingMethods()
@@ -65,11 +66,11 @@ class ModelHandler implements SubscribingHandlerInterface
     public function deserializeModelFromJson(JsonDeserializationVisitor $visitor, $model, array $type)
     {
         if ($model && count($type['params'])) {
-            if (!$this->documentManager) {
-                throw new \Staffim\DTOBundle\Exception\Exception('You should set document manager for using document auto-fetching.');
+            if (!$this->objectManager) {
+                throw new \Staffim\DTOBundle\Exception\Exception('You should set object manager for using document auto-fetching.');
             }
             $className = $type['params'][0]['name'];
-            $object = $this->documentManager->getRepository($className)->find($model);
+            $object = $this->objectManager->getRepository($className)->find($model);
             if (!$object) {
                 throw new \Staffim\DTOBundle\Exception\ObjectNotFoundException($className, $model);
             }
