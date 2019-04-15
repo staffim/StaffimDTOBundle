@@ -20,9 +20,12 @@ class DTOConfigurationExtension implements ConfigurationExtensionInterface
      */
     public function decorate(ClassMetadataInterface $classMetadata): void
     {
-        $relations = $this->relationProvider->addRelations($classMetadata->getName());
-        foreach ($relations as $relation) {
-            $classMetadata->addRelation($relation);
+        $class = new \ReflectionClass($classMetadata->getName());
+        if (!$class->isAbstract()) {
+            $relations = $this->relationProvider->addRelations($classMetadata->getName());
+            foreach ($relations as $relation) {
+                $classMetadata->addRelation($relation);
+            }
         }
     }
 }

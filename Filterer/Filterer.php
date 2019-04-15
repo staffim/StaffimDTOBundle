@@ -48,7 +48,8 @@ class Filterer
             foreach ($classFilteredProperties as $property) {
                 $filters = $property->getFilters();
                 array_walk($filters, function ($filter) use ($modelObject, $property) {
-                    $this->applyFilter($modelObject, $property->reflection, $filter);
+                    $reflection = new \ReflectionProperty($property->class, $property->name);
+                    $this->applyFilter($modelObject, $reflection, $filter);
                 });
             }
         }
