@@ -102,9 +102,6 @@ class RelationTest extends KernelTestCase
     }
 }
 
-/**
- * @Hateoas\RelationProvider("")
- */
 class Foo implements DTOInterface
 {
     public function __construct($id)

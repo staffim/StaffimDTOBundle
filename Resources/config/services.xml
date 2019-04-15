@@ -85,6 +85,11 @@
             <tag name="hateoas.relation_provider" />
         </service>
 
+        <service id="acme_foo.hateoas.configuration_extension.foobar" class="Staffim\DTOBundle\Hateoas\DTOConfigurationExtension">
+            <argument type="service" id="staffim_dto.hateoas.dto_relation_provider"/>
+            <tag name="hateoas.configuration_extension" />
+        </service>
+
         <!-- Param converters -->
         <service id="staffim_dto.param_converter.dto" class="%staffim_dto.param_converter.dto.class%">
             <argument type="service" id="jms_serializer"/>
