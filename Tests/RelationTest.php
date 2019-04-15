@@ -13,8 +13,6 @@ use Staffim\DTOBundle\DTO\Model\DTOInterface;
 
 class RelationTest extends KernelTestCase
 {
-    private $serializationContext;
-
     public function testSingleRelation()
     {
         $baz = new Foo('baz');
@@ -69,6 +67,16 @@ class RelationTest extends KernelTestCase
         $this->assertArrayNotHasKey('model', $result);
     }
 
+    public function testMultipleSerialize()
+    {
+        $bar = new Foo('Some');
+
+        $bar->model = UnknownValue::create();
+        $this->serialize($bar);
+        $this->serialize($bar);
+        $this->assertTrue(true);
+    }
+
     private function getSerializer()
     {
         return static::$kernel->getContainer()->get('jms_serializer');
@@ -76,13 +84,11 @@ class RelationTest extends KernelTestCase
 
     private function getSerializationContext()
     {
-        if (!$this->serializationContext) {
-            $this->serializationContext = new SerializationContext;
-            $this->serializationContext->setSerializeNull(true);
-            $this->serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
-        }
+        $serializationContext = new SerializationContext;
+        $serializationContext->setSerializeNull(true);
+        $serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
 
-        return $this->serializationContext;
+        return $serializationContext;
     }
 
     private function serialize($object)

@@ -26,10 +26,6 @@ class DTOParamConverter implements ParamConverterInterface
      */
     protected $serializer;
 
-    /**
-     * @var \Staffim\DTOBundle\Serializer\SerializationContext
-     */
-    protected $serializationContext;
 
     /**
      * @var \Symfony\Component\Validator\Validator
@@ -56,9 +52,18 @@ class DTOParamConverter implements ParamConverterInterface
         $this->validator = $validator;
         $this->serializer = $serializer;
         $this->filterer = $filterer;
-        $this->serializationContext = new SerializationContext;
-        $this->serializationContext->setSerializeNull(true);
-        $this->serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
+    }
+
+    /**
+     * @return SerializationContext
+     */
+    public function createSerializationContext()
+    {
+        $serializationContext = new SerializationContext;
+        $serializationContext->setSerializeNull(true);
+        $serializationContext->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
+
+        return $serializationContext;
     }
 
     /**
@@ -171,7 +176,7 @@ class DTOParamConverter implements ParamConverterInterface
      * @param \Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter $configuration
      * @param array $options
      * @return string
-     * @throws \Patch\FailedTestException
+     * @throws \RS\JSON\Patch\FailedTestException
      * @throws \Staffim\DTOBundle\Exception\Exception
      */
     protected function buildModelFromPatchRequest(Request $request, ParamConverter $configuration, array $options)
@@ -220,7 +225,7 @@ class DTOParamConverter implements ParamConverterInterface
     protected function applyPatch(ModelInterface $model, $patchOperations)
     {
         try {
-            $document = $this->serializer->serialize($this->mapper->map($model), 'json', $this->serializationContext);
+            $document = $this->serializer->serialize($this->mapper->map($model), 'json', $this->createSerializationContext());
             $patch = new Patch($document, $patchOperations);
 
             return $patch->apply();
