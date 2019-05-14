@@ -51,7 +51,7 @@ class DTORelationProvider
         if ($type['name'] == 'DTO') {
             return is_object($value);
         } elseif ($type['name'] == 'array' && $type['params'] && $type['params'][0]['name'] == 'DTO') {
-            return count($value) && is_object($value[0]);
+            return $value && count($value) && is_object($value[0]);
         } else {
             return false;
         }
