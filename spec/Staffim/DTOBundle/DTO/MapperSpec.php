@@ -4,10 +4,10 @@ namespace spec\Staffim\DTOBundle\DTO;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Staffim\DTOBundle\DTO\ModelNameResolver;
 use Staffim\DTOBundle\DTO\UnknownValue;
 use Staffim\DTOBundle\Request\MappingConfigurator;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Staffim\DTOBundle\Request\RequestMappingStorage;
 use Staffim\DTOBundle\DTO\Factory;
 use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Model\EmbeddedModelInterface;
@@ -19,8 +19,9 @@ class MapperSpec extends ObjectBehavior
 {
     public function let(
         PropertyAccessorInterface $propertyAccessor,
-        MappingConfigurator $mappingConfigurator,
         Factory $factory,
+        ModelNameResolver $modelNameResolver,
+        MappingConfigurator $mappingConfigurator,
         EventDispatcherInterface $eventDispatcher
     ) {
 
@@ -28,7 +29,7 @@ class MapperSpec extends ObjectBehavior
         $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
         $mappingConfigurator->hasRelation(['a'])->willReturn(false);
 
-        $this->beConstructedWith($propertyAccessor, $factory, $mappingConfigurator, $eventDispatcher);
+        $this->beConstructedWith($propertyAccessor, $factory, $modelNameResolver, $mappingConfigurator, $eventDispatcher);
     }
 
     function it_is_initializable()

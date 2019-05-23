@@ -17,6 +17,7 @@
         <parameter key="staffim_dto.serializer.model_handler.class">Staffim\DTOBundle\Serializer\ModelHandler</parameter>
         <parameter key="staffim_dto.hateoas.dto_relation_provider.class">Staffim\DTOBundle\Hateoas\DTORelationProvider</parameter>
         <parameter key="staffim_dto.hateoas.relation_provider.class">Staffim\DTOBundle\Hateoas\RelationProvider</parameter>
+        <parameter key="staffim_dto.dto.model_name_resolver.class">Staffim\DTOBundle\DTO\ModelNameResolver</parameter>
 
         <parameter key="staffim_dto.param_converter.dto.class">Staffim\DTOBundle\Request\ParamConverter\DTOParamConverter</parameter>
         <parameter key="staffim_dto.param_converter.pagination.class">Staffim\DTOBundle\Request\ParamConverter\PaginationParamConverter</parameter>
@@ -53,15 +54,20 @@
             <argument type="service" id="staffim_dto.mapping_storage"/>
         </service>
 
+        <service id="staffim_dto.dto.model_name_resolver" class="%staffim_dto.dto.model_name_resolver.class%">
+        </service>
+
         <service id="staffim_dto.dto.mapper" class="%staffim_dto.dto.mapper.class%">
             <argument type="service" id="staffim_dto.dto.property_accessor"/>
             <argument type="service" id="staffim_dto.dto.factory"/>
+            <argument type="service" id="staffim_dto.dto.model_name_resolver"/>
             <argument type="service" id="staffim_dto.mapping_configurator"/>
         </service>
 
         <service id="staffim_dto.patch.mapper" class="%staffim_dto.dto.mapper.class%" public="false">
             <argument type="service" id="staffim_dto.dto.property_accessor"/>
             <argument type="service" id="staffim_dto.dto.factory"/>
+            <argument type="service" id="staffim_dto.dto.model_name_resolver"/>
         </service>
 
         <!-- Serializer stuff -->

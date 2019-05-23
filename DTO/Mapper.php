@@ -33,24 +33,33 @@ class Mapper
     private $factory;
 
     /**
+     * @var \Staffim\DTOBundle\DTO\ModelNameResolver
+     */
+    private $modelNameResolver;
+
+    /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     private $eventDispatcher;
 
     /**
+     * Mapper constructor.
      * @param \Symfony\Component\PropertyAccess\PropertyAccessorInterface $propertyAccessor
-     * @param \Staffim\DTOBundle\Request\MappingConfigurator $mappingConfigurator
      * @param \Staffim\DTOBundle\DTO\Factory $factory
-     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+     * @param \Staffim\DTOBundle\DTO\ModelNameResolver $modelNameResolver
+     * @param \Staffim\DTOBundle\Request\MappingConfigurator|null $mappingConfigurator
+     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface|null $eventDispatcher
      */
     public function __construct(
         PropertyAccessorInterface $propertyAccessor,
         Factory $factory,
+        ModelNameResolver $modelNameResolver,
         MappingConfigurator $mappingConfigurator = null,
         EventDispatcherInterface $eventDispatcher = null
     ) {
         $this->propertyAccessor = $propertyAccessor;
         $this->factory = $factory;
+        $this->modelNameResolver = $modelNameResolver;
         $this->mappingConfigurator = $mappingConfigurator;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -115,9 +124,8 @@ class Mapper
 
         if ($this->eventDispatcher) {
             $event = new PostMapEvent($model, $dto);
-            $modelClassParts = explode('\\', get_class($model));
-            $modelName = \Doctrine\Common\Inflector\Inflector::tableize(end($modelClassParts));
-            $this->eventDispatcher->dispatch('dto.' . $modelName . '.post_map', $event);
+
+            $this->eventDispatcher->dispatch('dto.' . $this->modelNameResolver->resolve($model) . '.post_map', $event);
         }
 
         return $dto;
