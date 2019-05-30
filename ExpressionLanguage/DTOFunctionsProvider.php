@@ -19,4 +19,3 @@ class DTOFunctionsProvider implements ExpressionFunctionProviderInterface
         ];
     }
 }
-q
