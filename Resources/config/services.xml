@@ -138,5 +138,8 @@
         <service id="filterer.html_purifier" class="Staffim\DTOBundle\Filterer\Filters\HTMLPurifier">
             <tag name="filterer.filter" alias="html_purifier"/>
         </service>
+        <service id="staffim_dto.expression_language.function_provider" class="Staffim\DTOBundle\ExpressionLanguage\DTOFunctionsProvider" public="false">
+            <tag name="jms.expression.function_provider"/>
+        </service>
     </services>
 </container>

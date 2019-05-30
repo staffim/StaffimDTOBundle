@@ -11,7 +11,7 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     abstract protected function getRawFields($key);
 
     /**
-     * return \Staffim\DTOBundle\MappingStorage\Config
+     * return Config
      */
     public function getRelations()
     {
@@ -19,7 +19,7 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @return \Staffim\DTOBundle\MappingStorage\Config
+     * @return Config
      */
     public function getFieldsToShow()
     {
@@ -27,7 +27,7 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @return \Staffim\DTOBundle\MappingStorage\Config
+     * @return Config
      */
     public function getFieldsToHide()
     {
@@ -35,8 +35,9 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @param string $key
-     * @return array
+     * @param $key
+     * @param bool $asField
+     * @return Config
      */
     private function getFields($key, $asField = true)
     {
@@ -44,9 +45,9 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @param string $key
-     * @param bool $expandPath
-     * @return array
+     * @param $key
+     * @param bool $asField
+     * @return Config
      */
     private function compileFields($key, $asField = true)
     {
@@ -54,8 +55,9 @@ abstract class AbstractMappingStorage implements MappingStorageInterface
     }
 
     /**
-     * @param array $relations
-     * @return array
+     * @param array $data
+     * @param $asField
+     * @return Config
      */
     private function buildConfig(array $data, $asField)
     {

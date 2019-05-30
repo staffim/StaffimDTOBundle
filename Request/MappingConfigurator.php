@@ -7,12 +7,12 @@ use Staffim\DTOBundle\MappingStorage\MappingStorageInterface;
 class MappingConfigurator implements  MappingConfiguratorInterface
 {
     /**
-     * @var \Staffim\DTOBundle\MappingStorage\MappingStorageInterface
+     * @var MappingStorageInterface
      */
     private $storage;
 
     /**
-     * @param \Staffim\DTOBundle\MappingStorage\MappingStorageInterface $storage
+     * @param MappingStorageInterface $storage
      */
     public function __construct(MappingStorageInterface $storage)
     {
@@ -20,7 +20,7 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param array $propertyPath
+     * @param array $fullPropertyPath
      * @return bool
      */
     public function isPropertyVisible(array $fullPropertyPath)
@@ -49,7 +49,7 @@ class MappingConfigurator implements  MappingConfiguratorInterface
     }
 
     /**
-     * @param array $propertyName
+     * @param array $propertyPath
      * @return bool
      */
     public function hasRelation(array $propertyPath)

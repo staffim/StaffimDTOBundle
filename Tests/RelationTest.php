@@ -8,7 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Staffim\DTOBundle\Serializer\SerializationContext;
 
 use JMS\Serializer\Annotation as Serializer;
-use Hateoas\Configuration\Annotation as Hateoas;
 use Staffim\DTOBundle\DTO\Model\DTOInterface;
 
 class RelationTest extends KernelTestCase
@@ -18,6 +17,7 @@ class RelationTest extends KernelTestCase
         $baz = new Foo('baz');
         $foo = new Foo('foo');
         $foo->model = $baz;
+        $foo->model->value = 'some value';
         $result = $this->serialize($foo);
 
         $this->assertEquals('string', gettype($result['model']));
@@ -25,6 +25,17 @@ class RelationTest extends KernelTestCase
 
         $this->assertArrayHasKey('model', $result['_embedded']);
         $this->assertEquals('baz', $result['_embedded']['model']['id']);
+        $this->assertEquals('some value', $result['_embedded']['model']['value']);
+    }
+
+    public function testNoExtraEmbedded()
+    {
+        $foo = new Foo('foo');
+        $id = 'idonly';
+        $foo->model = $id;
+        $result = $this->serialize($foo);
+
+        $this->assertArrayNotHasKey('_embedded', $result);
     }
 
     public function testCollectionRelation()
@@ -110,6 +121,8 @@ class Foo implements DTOInterface
     }
 
     public $id;
+
+    public $value;
 
     /**
      * @Serializer\Type("DTO")

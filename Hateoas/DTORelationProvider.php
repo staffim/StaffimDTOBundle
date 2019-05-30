@@ -44,7 +44,7 @@ class DTORelationProvider
                     $route,
                     new Hateoas\Embedded($value),
                     [],
-                    new Hateoas\Exclusion(null, null, null, null, 'object.' . $propertyName . ' === null')
+                    new Hateoas\Exclusion(null, null, null, null, 'object.' . $propertyName . ' === null || !is_dto(object.' . $propertyName . ')')
                 );
             }
         }
