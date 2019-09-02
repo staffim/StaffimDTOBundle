@@ -97,7 +97,7 @@ class Mapper
         $result = [];
         foreach ($collection as $model) {
             if (!($model instanceof ModelInterface)) {
-                throw new MappingException('Class \''. get_class($model) .'\' should implement \\Staffim\\DTOBundle\\Model\\ModelInterface');
+                throw new MappingException('Class \'' . get_class($model) . '\' should implement \\Staffim\\DTOBundle\\Model\\ModelInterface');
             }
 
             $result[] = $this->doMap($model, $parentPropertyPath);
@@ -123,9 +123,10 @@ class Mapper
         }
 
         if ($this->eventDispatcher) {
-            $event = new PostMapEvent($model, $dto);
+            $eventName = 'dto.' . $this->modelNameResolver->resolve($model) . '.post_map';
+            $event = new PostMapEvent($eventName, $model, $dto);
 
-            $this->eventDispatcher->dispatch('dto.' . $this->modelNameResolver->resolve($model) . '.post_map', $event);
+            $this->eventDispatcher->dispatch($event, $event->getName());
         }
 
         return $dto;

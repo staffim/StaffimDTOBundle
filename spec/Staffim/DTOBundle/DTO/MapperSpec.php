@@ -174,7 +174,7 @@ class MapperSpec extends ObjectBehavior
     function it_should_trigger_events($factory, $eventDispatcher, ModelInterface $model, ModelDTO $dto)
     {
         $factory->create($model)->willReturn($dto);
-        $eventDispatcher->dispatch(Argument::type('string'), Argument::type('Staffim\DTOBundle\Event\PostMapEvent'))->shouldBeCalled();
+        $eventDispatcher->dispatch(Argument::type('Staffim\DTOBundle\Event\PostMapEvent'), Argument::type('string'))->shouldBeCalled();
         $this->map($model);
     }
 
