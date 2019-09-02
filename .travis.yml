@@ -10,7 +10,7 @@ matrix:
   fast_finish: true
   include:
     - php: 7.2
-      env: SYMFONY_VERSION=4.2.*
+      env: SYMFONY_VERSION=4.3.*
 
 
 before_install:
