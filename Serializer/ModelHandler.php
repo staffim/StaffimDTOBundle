@@ -5,8 +5,8 @@ namespace Staffim\DTOBundle\Serializer;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
-use JMS\Serializer\JsonSerializationVisitor;
-use JMS\Serializer\JsonDeserializationVisitor;
+use JMS\Serializer\Visitor\DeserializationVisitorInterface;
+use JMS\Serializer\Visitor\SerializationVisitorInterface;
 use Staffim\DTOBundle\DTO\Model\DTOInterface;
 
 class ModelHandler implements SubscribingHandlerInterface
@@ -43,12 +43,12 @@ class ModelHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param \JMS\Serializer\JsonSerializationVisitor $visitor
+     * @param \JMS\Serializer\Visitor\SerializationVisitorInterface $visitor
      * @param string|\Staffim\DTOBundle\DTO\Model\DTOInterface $model
      * @param array $type
      * @return string
      */
-    public function serializeModelToJson(JsonSerializationVisitor $visitor, $model, array $type)
+    public function serializeModelToJson(SerializationVisitorInterface $visitor, $model, array $type)
     {
         if ($model instanceof DTOInterface) {
             return $model->id;
@@ -58,12 +58,12 @@ class ModelHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param \JMS\Serializer\JsonDeserializationVisitor $visitor
+     * @param \JMS\Serializer\Visitor\DeserializationVisitorInterface $visitor
      * @param string $model
      * @param array $type
      * @return mixed
      */
-    public function deserializeModelFromJson(JsonDeserializationVisitor $visitor, $model, array $type)
+    public function deserializeModelFromJson(DeserializationVisitorInterface $visitor, $model, array $type)
     {
         if ($model && count($type['params'])) {
             if (!$this->objectManager) {
