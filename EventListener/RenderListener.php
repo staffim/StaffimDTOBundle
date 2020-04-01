@@ -3,11 +3,8 @@
 namespace Staffim\DTOBundle\EventListener;
 
 use JMS\Serializer\SerializerInterface;
-
 use Staffim\DTOBundle\Serializer\Exclusion\HiddenFieldsExclusionStrategy;
-use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpFoundation\Response;
-
 use Staffim\DTOBundle\DTO\Mapper;
 use Staffim\DTOBundle\Collection\PaginableCollectionInterface;
 use Staffim\DTOBundle\Collection\ModelIteratorInterface;
@@ -15,6 +12,7 @@ use Staffim\DTOBundle\Hateoas\CollectionRepresentation;
 use Staffim\DTOBundle\Hateoas\PaginatedRepresentation;
 use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Serializer\SerializationContext;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 class RenderListener
 {
@@ -42,9 +40,9 @@ class RenderListener
      * Renders the template and initializes a new response object with the
      * rendered template content.
      *
-     * @param GetResponseForControllerResultEvent $event A GetResponseForControllerResultEvent instance
+     * @param ViewEvent $event A ViewEvent instance
      */
-    public function onKernelView(GetResponseForControllerResultEvent $event)
+    public function onKernelView(ViewEvent $event)
     {
         if (!$render = $event->getRequest()->attributes->get('_render')) {
             return;
@@ -56,39 +54,44 @@ class RenderListener
         $response = new Response();
         $response->setStatusCode($render->getCode());
 
+        $event->setResponse($response);
+
         // "The 204 response MUST NOT include a message-body, and thus is always terminated by the first empty line
         // after the header fields" — http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html.
-        if (204 == $render->getCode()) {
-            $content = null;
-        } elseif ($data !== null) {
-            if ($data instanceof ModelInterface) {
-                $presentationData = $this->mapper->map($data);
-            } elseif ($data instanceof ModelIteratorInterface) {
-                $presentationData = new CollectionRepresentation($this->mapper->mapCollection($data));
-                if ($route && $data instanceof PaginableCollectionInterface && $pagination = $data->getPagination()) {
-                    $presentationData = new PaginatedRepresentation(
-                        $presentationData,
-                        $route,
-                        $routeParams,
-                        $pagination->offset,
-                        $pagination->limit,
-                        $data->count()
-                    );
-                }
-            } else {
-                $presentationData = $data;
-            }
-            $context = new SerializationContext;
-            $context->setSerializeNull(true);
-            $context->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
-            $context->setGroups($render->getGroups() ?: ['Default']);
-            $content = $this->serializer->serialize($presentationData, $render->getFormat(), $context);
 
-            $response->headers->set('Content-Type', 'application/json; charset=UTF-8');
-            $response->headers->set('Content-Length', strlen($content));
-            $response->setContent($content);
+        if (204 === $render->getCode()) {
+            return;
         }
 
-        $event->setResponse($response);
+        if ($data === null) {
+            return;
+        }
+
+        if ($data instanceof ModelInterface) {
+            $presentationData = $this->mapper->map($data);
+        } elseif ($data instanceof ModelIteratorInterface) {
+            $presentationData = new CollectionRepresentation($this->mapper->mapCollection($data));
+            if ($route && $data instanceof PaginableCollectionInterface && $pagination = $data->getPagination()) {
+                $presentationData = new PaginatedRepresentation(
+                    $presentationData,
+                    $route,
+                    $routeParams,
+                    $pagination->offset,
+                    $pagination->limit,
+                    $data->count()
+                );
+            }
+        } else {
+            $presentationData = $data;
+        }
+        $context = new SerializationContext();
+        $context->setSerializeNull(true);
+        $context->addExclusionStrategy(new HiddenFieldsExclusionStrategy());
+        $context->setGroups($render->getGroups() ?: ['Default']);
+        $content = $this->serializer->serialize($presentationData, $render->getFormat(), $context);
+
+        $response->headers->set('Content-Type', 'application/json; charset=UTF-8');
+        $response->headers->set('Content-Length', strlen($content));
+        $response->setContent($content);
     }
 }
