@@ -24,8 +24,10 @@ class DTORelationProvider
      * @param \Metadata\MetadataFactoryInterface $metadataFactory
      * @param \JMS\Serializer\Expression\CompilableExpressionEvaluatorInterface $evaluator
      */
-    public function __construct(MetadataFactoryInterface $metadataFactory, CompilableExpressionEvaluatorInterface $evaluator)
-    {
+    public function __construct(
+        MetadataFactoryInterface $metadataFactory,
+        CompilableExpressionEvaluatorInterface $evaluator
+    ) {
         $this->metadataFactory = $metadataFactory;
         $this->evaluator = $evaluator;
     }
@@ -44,7 +46,8 @@ class DTORelationProvider
                     $route,
                     new Hateoas\Embedded($value),
                     [],
-                    new Hateoas\Exclusion(null, null, null, null, 'object.' . $propertyName . ' === null || !is_dto(object.' . $propertyName . ')')
+                    new Hateoas\Exclusion(null, null, null, null,
+                        'object.' . $propertyName . ' === null || !is_dto(object.' . $propertyName . ')')
                 );
             }
         }
@@ -74,6 +77,10 @@ class DTORelationProvider
 
     public static function isPropertyDTO($type)
     {
+        if (!is_array($type)) {
+            return false;
+        }
+
         if ($type['name'] == 'DTO') {
             return true;
         } elseif ($type['name'] == 'array' && $type['params'] && $type['params'][0]['name'] == 'DTO') {
