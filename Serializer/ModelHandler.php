@@ -2,7 +2,7 @@
 
 namespace Staffim\DTOBundle\Serializer;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Visitor\DeserializationVisitorInterface;
@@ -12,12 +12,12 @@ use Staffim\DTOBundle\DTO\Model\DTOInterface;
 class ModelHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var \Doctrine\Common\Persistence\ObjectManager
+     * @var \Doctrine\Persistence\ObjectManager;
      */
     private $objectManager;
 
     /**
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
+     * @param \Doctrine\Persistence\ObjectManager $objectManager
      */
     public function setObjectManager(ObjectManager $objectManager)
     {
