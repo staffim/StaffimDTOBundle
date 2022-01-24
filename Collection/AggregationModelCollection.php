@@ -8,10 +8,13 @@ class AggregationModelCollection extends ModelCollection
 {
     private $commandCursor;
 
-    public function __construct(Builder $builder, Pagination $pagination = null, Sorting $sorting = null, string $hydrationClass = null)
-    {
-        $this->count = (clone $builder)
-            ->count('count')->execute()->current()['count'] ?: 0;
+    public function __construct(
+        Builder $builder,
+        Pagination $pagination = null,
+        Sorting $sorting = null,
+        string $hydrationClass = null
+    ) {
+        $this->initMetadata($builder);
 
         if ($hydrationClass) {
             $builder->hydrate($hydrationClass);
@@ -20,7 +23,7 @@ class AggregationModelCollection extends ModelCollection
         $this->preparePagination($builder, $pagination);
         $this->prepareSorting($builder, $sorting);
 
-        $this->commandCursor = $builder->execute();
+        $this->commandCursor = $builder->getAggregation()->getIterator();
     }
 
     /**
@@ -41,5 +44,14 @@ class AggregationModelCollection extends ModelCollection
             $builder->sort($sorting->fieldName, $sorting->order);
             $this->sorting = $sorting;
         }
+    }
+
+    protected function initMetadata(Builder $builder)
+    {
+        $count = (clone $builder)
+            ->hydrate('')
+            ->count('count')->getAggregation()->getIterator()->current();
+
+        $this->count = is_array($count) ? $count['count'] : 0;
     }
 }

@@ -4,10 +4,11 @@ namespace Staffim\DTOBundle\DTO;
 
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\Exception\NoSuchPropertyException;
+use Symfony\Component\PropertyAccess\PropertyPathInterface;
 
 class PropertyAccessor implements PropertyAccessorInterface
 {
-    public function getValue($objectOrArray, $propertyPath)
+    public function getValue(object|array $objectOrArray, string|PropertyPathInterface $propertyPath): mixed
     {
         $camelize = lcfirst($propertyPath);
         $getter = 'get' . $camelize;
@@ -23,26 +24,28 @@ class PropertyAccessor implements PropertyAccessorInterface
         }
     }
 
-    public function setValue(&$objectOrArray, $propertyPath, $value)
-    {
+    public function setValue(
+        object|array &$objectOrArray,
+        string|PropertyPathInterface $propertyPath,
+        mixed $value
+    ) {
         $camelize = lcfirst($propertyPath);
         $setter = 'set' . $camelize;
         if (property_exists($objectOrArray, $propertyPath)) {
             $objectOrArray->$propertyPath = $value;
-        } elseif (method_exists($objectOrArray, $setter)) {
+        } elseif
+        (method_exists($objectOrArray, $setter)) {
             return $objectOrArray->$setter($value);
         } else {
             throw new NoSuchPropertyException;
         }
     }
 
-    public function isReadable($objectOrArray, $propertyPath)
-    {
+    public function isReadable(object|array $objectOrArray, string|PropertyPathInterface $propertyPath): bool {
         return true;
     }
 
-    public function isWritable($objectOrArray, $propertyPath)
-    {
+    public function isWritable(object|array $objectOrArray, string|PropertyPathInterface $propertyPath): bool {
         return true;
     }
 }

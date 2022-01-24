@@ -27,27 +27,27 @@ abstract class BaseModelCollection implements ModelIteratorInterface, PaginableC
      */
     abstract public function getIterator();
 
-    public function current()
+    public function current(): mixed
     {
         return $this->getIterator()->current();
     }
 
-    public function key()
+    public function key(): mixed
     {
         return $this->getIterator()->key();
     }
 
-    public function next()
+    public function next(): void
     {
         $this->getIterator()->next();
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->getIterator()->rewind();
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->getIterator()->valid();
     }
