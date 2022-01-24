@@ -7,13 +7,14 @@ use Doctrine\Inflector\InflectorFactory;
 
 class ModelNameResolver
 {
-    private Inflector $inflector;
+    private $inflector;
 
     public function getInflector(): Inflector
     {
         if (!$this->inflector) {
             $this->inflector = InflectorFactory::create()->build();
         }
+
         return $this->inflector;
     }
 
