@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SortingParamConverter implements ParamConverterInterface
 {
-    public function apply(Request $request, ParamConverter $configuration)
+    public function apply(Request $request, ParamConverter $configuration): bool
     {
         $class = $configuration->getClass();
         $options = $this->getOptions($configuration);
@@ -28,9 +28,10 @@ class SortingParamConverter implements ParamConverterInterface
             return true;
         };
 
+        return false;
     }
 
-    public function supports(ParamConverter $configuration)
+    public function supports(ParamConverter $configuration): bool
     {
         if (null === $configuration->getClass()) {
             return false;
@@ -42,7 +43,7 @@ class SortingParamConverter implements ParamConverterInterface
 
     }
 
-    private function getOptions(ParamConverter $configuration)
+    private function getOptions(ParamConverter $configuration): array
     {
         return array_replace([
             'sort_order' => 'desc',

@@ -24,7 +24,7 @@ class ModelHandler implements SubscribingHandlerInterface
         $this->objectManager = $objectManager;
     }
 
-    public static function getSubscribingMethods()
+    public static function getSubscribingMethods(): array
     {
         return [
             [

@@ -17,12 +17,12 @@ class Render extends ConfigurationAnnotation
 
     protected $groups = [];
 
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->format;
     }
 
-    public function setFormat($format)
+    public function setFormat(string $format)
     {
         $this->format = $format;
     }
@@ -37,7 +37,7 @@ class Render extends ConfigurationAnnotation
         $this->code = $code;
     }
 
-    function getGroups()
+    function getGroups(): array
     {
         return $this->groups;
     }
@@ -47,19 +47,12 @@ class Render extends ConfigurationAnnotation
         $this->groups = $groups;
     }
 
-    /**
-     * Returns the annotation alias name.
-     *
-     * @see \Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface
-     *
-     * @return string
-     */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'render';
     }
 
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

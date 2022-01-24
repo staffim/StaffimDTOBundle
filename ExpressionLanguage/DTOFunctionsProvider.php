@@ -8,7 +8,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
 class DTOFunctionsProvider implements ExpressionFunctionProviderInterface
 {
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new ExpressionFunction('is_dto', function ($arg) {
