@@ -5,7 +5,7 @@ framework:
         enabled: true
         enable_annotations: true
     router:
-        resource: "%kernel.root_dir%/routing.yml"
+        resource: "%kernel.project_dir%/routing.yml"
 
 jms_serializer:
     visitors:
