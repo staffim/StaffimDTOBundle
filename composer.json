@@ -6,9 +6,9 @@
     "type": "bundle",
     "authors": [{"name": "Vyacheslav Salakhutdinov", "email": "megazoll@gmail.com"}],
     "require": {
-        "symfony/property-access": "~4.3|~5.0",
-        "symfony/http-kernel": "~4.3|~5.0",
-        "symfony/event-dispatcher": "~4.3|~5.0",
+        "symfony/property-access": "~4.3|~5.0|~6.0",
+        "symfony/http-kernel": "~4.3|~5.0|~6.0",
+        "symfony/event-dispatcher": "~4.3|~5.0|~6.0",
         "willdurand/hateoas-bundle": "~2.0",
         "php-jsonpatch/php-jsonpatch": "~3.0",
         "doctrine/inflector": "^1.3"
@@ -17,9 +17,9 @@
         "doctrine/orm": "~2.6",
         "phpspec/phpspec": "~5.0",
         "phpunit/phpunit": "~8.0",
-        "symfony/framework-bundle": "~4.2|~5.0",
-        "symfony/validator": "~4.2|~5.0",
-        "symfony/translation": "~4.2|~5.0"
+        "symfony/framework-bundle": "~4.2|~5.0|~6.0",
+        "symfony/validator": "~4.2|~5.0|~6.0",
+        "symfony/translation": "~4.2|~5.0|~6.0"
     },
     "autoload": {
         "psr-4": {"Staffim\\DTOBundle\\": ""}
