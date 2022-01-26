@@ -9,13 +9,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  *
  * @Annotation
  */
+#[\Attribute(\Attribute::TARGET_METHOD)]
 class Render extends ConfigurationAnnotation
 {
-    protected $format = 'json';
-
-    protected $code = 200;
-
-    protected $groups = [];
+    public function __construct(protected int $code = 200, protected string $format = 'json', protected array $groups = [])
+    {
+    }
 
     public function getFormat(): string
     {
@@ -56,4 +55,5 @@ class Render extends ConfigurationAnnotation
     {
         return false;
     }
+
 }

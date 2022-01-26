@@ -4,17 +4,16 @@ namespace spec\Staffim\DTOBundle\DTO;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Staffim\DTOBundle\Collection\EmbeddedModelCollection;
+use Staffim\DTOBundle\Collection\ModelCollection;
+use Staffim\DTOBundle\DTO\Factory;
 use Staffim\DTOBundle\DTO\ModelNameResolver;
 use Staffim\DTOBundle\DTO\UnknownValue;
+use Staffim\DTOBundle\Model\EmbeddedModelInterface;
+use Staffim\DTOBundle\Model\ModelInterface;
 use Staffim\DTOBundle\Request\MappingConfigurator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Staffim\DTOBundle\DTO\Factory;
-use Staffim\DTOBundle\Model\ModelInterface;
-use Staffim\DTOBundle\Model\EmbeddedModelInterface;
-use Staffim\DTOBundle\Collection\ModelCollection;
-use Staffim\DTOBundle\Collection\EmbeddedModelCollection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class MapperSpec extends ObjectBehavior
@@ -29,6 +28,7 @@ class MapperSpec extends ObjectBehavior
         $mappingConfigurator->isPropertyVisible(['id'])->willReturn(true);
         $mappingConfigurator->isPropertyVisible(['a'])->willReturn(true);
         $mappingConfigurator->hasRelation(['a'])->willReturn(false);
+        $modelNameResolver->resolve()->willReturn('');
         $this->beConstructedWith($propertyAccessor, $factory, $modelNameResolver, $mappingConfigurator);
     }
 
@@ -227,9 +227,11 @@ class MapperSpec extends ObjectBehavior
         ModelInterface $model,
         ModelDTO $dto
     ) {
+        $modelNameResolver->resolve(Argument::any())->willReturn('');
         $this->beConstructedWith($propertyAccessor, $factory, $modelNameResolver, $mappingConfigurator, $eventDispatcher);
-        $eventDispatcher->dispatch()->willReturn(new DateTime());
-
+        $eventDispatcher->dispatch(Argument::type('Staffim\DTOBundle\Event\PostMapEvent'), Argument::type('string'))->willReturn(
+            new DateTime()
+        );
 
         $factory->create($model)->willReturn($dto);
         $eventDispatcher->dispatch(Argument::type('Staffim\DTOBundle\Event\PostMapEvent'), Argument::type('string'))->shouldBeCalled();
